@@ -9,6 +9,7 @@ import { ClassSchedule } from '@/components/dashboard/ClassSchedule';
 import { GPACalculator } from '@/components/dashboard/GPACalculator';
 import { CalendarWidget } from '@/components/dashboard/CalendarWidget';
 import { ResourceLinks } from '@/components/dashboard/ResourceLinks';
+import { AIStudyAssistant } from '@/components/dashboard/AIStudyAssistant';
 
 const Index = () => {
   return (
@@ -26,6 +27,7 @@ const Index = () => {
           </div>
           <div className="space-y-6">
             <PomodoroTimer />
+            <AIStudyAssistant />
           </div>
         </div>
         
