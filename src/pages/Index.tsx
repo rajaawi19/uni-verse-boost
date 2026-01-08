@@ -10,6 +10,8 @@ import { GPACalculator } from '@/components/dashboard/GPACalculator';
 import { CalendarWidget } from '@/components/dashboard/CalendarWidget';
 import { ResourceLinks } from '@/components/dashboard/ResourceLinks';
 import { AIStudyAssistant } from '@/components/dashboard/AIStudyAssistant';
+import { DictionaryWidget } from '@/components/dashboard/DictionaryWidget';
+import { WikipediaSearch } from '@/components/dashboard/WikipediaSearch';
 
 const Index = () => {
   return (
@@ -35,6 +37,11 @@ const Index = () => {
           <ClassSchedule />
           <QuickNotes />
           <GPACalculator />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <DictionaryWidget />
+          <WikipediaSearch />
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
