@@ -13,6 +13,7 @@ import { AIStudyAssistant } from '@/components/dashboard/AIStudyAssistant';
 import { DictionaryWidget } from '@/components/dashboard/DictionaryWidget';
 import { WikipediaSearch } from '@/components/dashboard/WikipediaSearch';
 import { FlashcardSystem } from '@/components/dashboard/FlashcardSystem';
+import { ExpenseTracker } from '@/components/dashboard/ExpenseTracker';
 
 const Index = () => {
   return (
@@ -35,10 +36,11 @@ const Index = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           <ClassSchedule />
           <QuickNotes />
           <GPACalculator />
+          <ExpenseTracker />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
