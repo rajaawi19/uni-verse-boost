@@ -12,6 +12,7 @@ import { ResourceLinks } from '@/components/dashboard/ResourceLinks';
 import { AIStudyAssistant } from '@/components/dashboard/AIStudyAssistant';
 import { DictionaryWidget } from '@/components/dashboard/DictionaryWidget';
 import { WikipediaSearch } from '@/components/dashboard/WikipediaSearch';
+import { FlashcardSystem } from '@/components/dashboard/FlashcardSystem';
 
 const Index = () => {
   return (
@@ -29,6 +30,7 @@ const Index = () => {
           </div>
           <div className="space-y-6">
             <PomodoroTimer />
+            <FlashcardSystem />
             <AIStudyAssistant />
           </div>
         </div>
