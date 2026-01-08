@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Sparkles } from 'lucide-react';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
 export const WelcomeHeader = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -37,6 +38,9 @@ export const WelcomeHeader = () => {
   return (
     <div className="gradient-hero rounded-2xl p-8 mb-8 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-64 h-64 gradient-primary opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeSwitcher />
+      </div>
       <div className="relative z-10">
         <div className="flex items-center gap-2 text-primary mb-2">
           <Sparkles className="w-5 h-5" />
