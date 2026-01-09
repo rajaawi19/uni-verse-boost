@@ -14,11 +14,26 @@ import { DictionaryWidget } from '@/components/dashboard/DictionaryWidget';
 import { WikipediaSearch } from '@/components/dashboard/WikipediaSearch';
 import { FlashcardSystem } from '@/components/dashboard/FlashcardSystem';
 import { ExpenseTracker } from '@/components/dashboard/ExpenseTracker';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { LogOut } from 'lucide-react';
 
-const Index = () => {
+const Dashboard = () => {
+  const { signOut, user } = useAuth();
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-7xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-sm text-muted-foreground">
+            Logged in as <span className="font-medium text-foreground">{user?.email}</span>
+          </div>
+          <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </Button>
+        </div>
+        
         <WelcomeHeader />
         
         <QuoteWidget />
@@ -62,4 +77,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Dashboard;
