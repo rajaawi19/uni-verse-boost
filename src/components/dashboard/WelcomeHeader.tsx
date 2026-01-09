@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Sparkles } from 'lucide-react';
 import { ThemeSwitcher } from './ThemeSwitcher';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const WelcomeHeader = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [greeting, setGreeting] = useState('');
+  const { profile, user } = useAuth();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -35,6 +37,12 @@ export const WelcomeHeader = () => {
     });
   };
 
+  // Get display name with fallbacks
+  const displayName = profile?.display_name || 
+    user?.user_metadata?.full_name || 
+    user?.email?.split('@')[0] || 
+    'Student';
+
   return (
     <div className="gradient-hero rounded-2xl p-8 mb-8 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-64 h-64 gradient-primary opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -47,7 +55,7 @@ export const WelcomeHeader = () => {
           <span className="text-sm font-medium">Student Dashboard</span>
         </div>
         <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-2">
-          {greeting}, <span className="text-gradient">Scholar!</span>
+          {greeting}, <span className="text-gradient">{displayName}!</span>
         </h1>
         <div className="flex flex-col md:flex-row md:items-center gap-4 mt-4">
           <div className="flex items-center gap-2 text-muted-foreground">

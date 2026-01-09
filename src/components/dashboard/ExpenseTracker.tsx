@@ -1,23 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { Wallet, Plus, Trash2, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Wallet, Plus, Trash2, TrendingDown, DollarSign, Cloud, Loader2 } from 'lucide-react';
 
 interface Expense {
   id: string;
-  description: string;
+  description: string | null;
   amount: number;
   category: string;
   date: string;
-}
-
-interface Budget {
-  category: string;
-  limit: number;
 }
 
 const CATEGORIES = [
@@ -30,13 +27,12 @@ const CATEGORIES = [
 ];
 
 export function ExpenseTracker() {
-  const [expenses, setExpenses] = useLocalStorage<Expense[]>('student-expenses', []);
-  const [budgets, setBudgets] = useLocalStorage<Budget[]>('student-budgets', [
-    { category: 'Food', limit: 300 },
-    { category: 'Books', limit: 100 },
-    { category: 'Entertainment', limit: 50 },
-  ]);
-  const [monthlyBudget, setMonthlyBudget] = useLocalStorage<number>('student-monthly-budget', 500);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [monthlyBudget, setMonthlyBudget] = useState<number>(500);
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
@@ -45,53 +41,140 @@ export function ExpenseTracker() {
   const [editingBudget, setEditingBudget] = useState(false);
   const [newBudgetLimit, setNewBudgetLimit] = useState('');
 
-  // Get current month's expenses
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  const monthlyExpenses = expenses.filter(e => e.date.startsWith(currentMonth));
-  
-  const totalSpent = monthlyExpenses.reduce((sum, e) => sum + e.amount, 0);
+  // Fetch expenses and settings from database
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchData = async () => {
+      setLoading(true);
+      
+      // Fetch current month's expenses
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      const { data: expenseData, error: expenseError } = await supabase
+        .from('expenses')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('date', `${currentMonth}-01`)
+        .order('date', { ascending: false });
+
+      if (expenseError) {
+        toast({
+          title: "Error loading expenses",
+          description: expenseError.message,
+          variant: "destructive",
+        });
+      } else {
+        setExpenses(expenseData || []);
+      }
+
+      // Fetch user settings for budget
+      const { data: settingsData } = await supabase
+        .from('user_settings')
+        .select('monthly_budget')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (settingsData?.monthly_budget) {
+        setMonthlyBudget(Number(settingsData.monthly_budget));
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [user, toast]);
+
+  const totalSpent = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
   const remaining = monthlyBudget - totalSpent;
   const spentPercentage = Math.min((totalSpent / monthlyBudget) * 100, 100);
 
   // Group expenses by category
   const expensesByCategory = CATEGORIES.map(cat => {
-    const catExpenses = monthlyExpenses.filter(e => e.category === cat.name);
-    const total = catExpenses.reduce((sum, e) => sum + e.amount, 0);
-    const budget = budgets.find(b => b.category === cat.name)?.limit || 0;
-    return { ...cat, total, budget, expenses: catExpenses };
-  }).filter(cat => cat.total > 0 || cat.budget > 0);
+    const catExpenses = expenses.filter(e => e.category === cat.name);
+    const total = catExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+    return { ...cat, total, expenses: catExpenses };
+  }).filter(cat => cat.total > 0);
 
-  const addExpense = () => {
-    if (!description.trim() || !amount || parseFloat(amount) <= 0) return;
+  const addExpense = async () => {
+    if (!description.trim() || !amount || parseFloat(amount) <= 0 || !user) return;
 
-    const newExpense: Expense = {
-      id: Date.now().toString(),
-      description: description.trim(),
-      amount: parseFloat(amount),
-      category,
-      date: new Date().toISOString(),
-    };
+    setSyncing(true);
+    const { data, error } = await supabase
+      .from('expenses')
+      .insert({
+        user_id: user.id,
+        description: description.trim(),
+        amount: parseFloat(amount),
+        category,
+        date: new Date().toISOString().split('T')[0],
+      })
+      .select()
+      .single();
 
-    setExpenses([newExpense, ...expenses]);
-    setDescription('');
-    setAmount('');
-    setShowAddExpense(false);
+    if (error) {
+      toast({
+        title: "Error adding expense",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else if (data) {
+      setExpenses([data, ...expenses]);
+      setDescription('');
+      setAmount('');
+      setShowAddExpense(false);
+    }
+    setSyncing(false);
   };
 
-  const deleteExpense = (id: string) => {
-    setExpenses(expenses.filter(e => e.id !== id));
-  };
+  const deleteExpense = async (id: string) => {
+    const { error } = await supabase
+      .from('expenses')
+      .delete()
+      .eq('id', id);
 
-  const updateBudget = (categoryName: string, newLimit: number) => {
-    const existing = budgets.find(b => b.category === categoryName);
-    if (existing) {
-      setBudgets(budgets.map(b => 
-        b.category === categoryName ? { ...b, limit: newLimit } : b
-      ));
+    if (error) {
+      toast({
+        title: "Error deleting expense",
+        description: error.message,
+        variant: "destructive",
+      });
     } else {
-      setBudgets([...budgets, { category: categoryName, limit: newLimit }]);
+      setExpenses(expenses.filter(e => e.id !== id));
     }
   };
+
+  const updateBudget = async (newLimit: number) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('user_settings')
+      .upsert({
+        user_id: user.id,
+        monthly_budget: newLimit,
+      });
+
+    if (error) {
+      toast({
+        title: "Error updating budget",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setMonthlyBudget(newLimit);
+    }
+    setEditingBudget(false);
+    setNewBudgetLimit('');
+  };
+
+  if (loading) {
+    return (
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
@@ -99,7 +182,8 @@ export function ExpenseTracker() {
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Wallet className="w-5 h-5 text-primary" />
-            Expense Tracker
+            Expenses
+            <Cloud className="w-4 h-4 text-muted-foreground" />
           </CardTitle>
           <Button 
             size="sm" 
@@ -129,10 +213,10 @@ export function ExpenseTracker() {
                     size="sm" 
                     onClick={() => {
                       if (parseFloat(newBudgetLimit) > 0) {
-                        setMonthlyBudget(parseFloat(newBudgetLimit));
+                        updateBudget(parseFloat(newBudgetLimit));
+                      } else {
+                        setEditingBudget(false);
                       }
-                      setEditingBudget(false);
-                      setNewBudgetLimit('');
                     }}
                   >
                     Save
@@ -178,6 +262,7 @@ export function ExpenseTracker() {
               placeholder="What did you spend on?"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              disabled={syncing}
             />
             <div className="flex gap-2">
               <div className="relative flex-1">
@@ -190,12 +275,14 @@ export function ExpenseTracker() {
                   className="pl-8"
                   step="0.01"
                   min="0"
+                  disabled={syncing}
                 />
               </div>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="px-3 py-2 bg-background border border-input rounded-md text-sm min-w-[120px]"
+                disabled={syncing}
               >
                 {CATEGORIES.map(cat => (
                   <option key={cat.name} value={cat.name}>
@@ -204,7 +291,8 @@ export function ExpenseTracker() {
                 ))}
               </select>
             </div>
-            <Button className="w-full" onClick={addExpense}>
+            <Button className="w-full" onClick={addExpense} disabled={syncing}>
+              {syncing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Add Expense
             </Button>
           </div>
@@ -214,40 +302,26 @@ export function ExpenseTracker() {
         {expensesByCategory.length > 0 && (
           <div className="space-y-2">
             <p className="text-sm font-medium text-muted-foreground">By Category</p>
-            {expensesByCategory.map(cat => {
-              const percentage = cat.budget > 0 ? Math.min((cat.total / cat.budget) * 100, 100) : 0;
-              return (
-                <div key={cat.name} className="p-3 bg-muted/20 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span>{cat.icon}</span>
-                      <span className="text-sm font-medium">{cat.name}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-sm font-medium">${cat.total.toFixed(2)}</span>
-                      {cat.budget > 0 && (
-                        <span className="text-xs text-muted-foreground"> / ${cat.budget}</span>
-                      )}
-                    </div>
+            {expensesByCategory.map(cat => (
+              <div key={cat.name} className="p-3 bg-muted/20 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span>{cat.icon}</span>
+                    <span className="text-sm font-medium">{cat.name}</span>
                   </div>
-                  {cat.budget > 0 && (
-                    <Progress 
-                      value={percentage} 
-                      className={`h-1.5 ${percentage > 90 ? '[&>div]:bg-red-500' : percentage > 70 ? '[&>div]:bg-yellow-500' : ''}`}
-                    />
-                  )}
+                  <span className="text-sm font-medium">${cat.total.toFixed(2)}</span>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
 
         {/* Recent Expenses */}
-        {monthlyExpenses.length > 0 && (
+        {expenses.length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Recent Expenses</p>
-            <div className="space-y-2 max-h-[200px] overflow-y-auto">
-              {monthlyExpenses.slice(0, 10).map(expense => {
+            <p className="text-sm font-medium text-muted-foreground">Recent</p>
+            <div className="space-y-2 max-h-[150px] overflow-y-auto">
+              {expenses.slice(0, 5).map(expense => {
                 const cat = CATEGORIES.find(c => c.name === expense.category);
                 return (
                   <div 
@@ -265,7 +339,7 @@ export function ExpenseTracker() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary" className={`${cat?.color} text-white text-xs`}>
-                        ${expense.amount.toFixed(2)}
+                        ${Number(expense.amount).toFixed(2)}
                       </Badge>
                       <Button 
                         size="sm" 
@@ -283,7 +357,7 @@ export function ExpenseTracker() {
           </div>
         )}
 
-        {monthlyExpenses.length === 0 && !showAddExpense && (
+        {expenses.length === 0 && !showAddExpense && (
           <div className="text-center py-6 text-muted-foreground">
             <Wallet className="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p>No expenses this month</p>

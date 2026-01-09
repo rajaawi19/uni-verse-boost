@@ -1,12 +1,22 @@
-import { useState } from 'react';
-import { Plus, Trash2, StickyNote, Edit2, Save } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Trash2, StickyNote, Edit2, Save, Cloud, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { Note } from '@/types/dashboard';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+
+interface Note {
+  id: string;
+  title: string;
+  content: string | null;
+  color: string;
+  created_at: string;
+  updated_at: string;
+}
 
 const noteColors = [
   'bg-yellow-100 border-yellow-200',
@@ -18,43 +28,122 @@ const noteColors = [
 ];
 
 export const QuickNotes = () => {
-  const [notes, setNotes] = useLocalStorage<Note[]>('student-notes', []);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [selectedColor, setSelectedColor] = useState(noteColors[0]);
 
-  const addNote = () => {
-    if (!newTitle.trim() && !newContent.trim()) return;
-    
-    const note: Note = {
-      id: Date.now().toString(),
-      title: newTitle || 'Untitled',
-      content: newContent,
-      color: selectedColor,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+  // Fetch notes from database
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchNotes = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('notes')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        toast({
+          title: "Error loading notes",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        setNotes(data || []);
+      }
+      setLoading(false);
     };
+
+    fetchNotes();
+  }, [user, toast]);
+
+  const addNote = async () => {
+    if ((!newTitle.trim() && !newContent.trim()) || !user) return;
     
-    setNotes([note, ...notes]);
-    setNewTitle('');
-    setNewContent('');
-    setIsAdding(false);
+    setSyncing(true);
+    const { data, error } = await supabase
+      .from('notes')
+      .insert({
+        user_id: user.id,
+        title: newTitle || 'Untitled',
+        content: newContent,
+        color: selectedColor,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error adding note",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else if (data) {
+      setNotes([data, ...notes]);
+      setNewTitle('');
+      setNewContent('');
+      setIsAdding(false);
+    }
+    setSyncing(false);
   };
 
-  const updateNote = (id: string, title: string, content: string) => {
-    setNotes(notes.map(note => 
-      note.id === id 
-        ? { ...note, title, content, updatedAt: new Date().toISOString() } 
-        : note
-    ));
+  const updateNote = async (id: string, title: string, content: string) => {
+    const { error } = await supabase
+      .from('notes')
+      .update({ title, content })
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: "Error updating note",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setNotes(notes.map(note => 
+        note.id === id 
+          ? { ...note, title, content, updated_at: new Date().toISOString() } 
+          : note
+      ));
+    }
     setEditingId(null);
   };
 
-  const deleteNote = (id: string) => {
-    setNotes(notes.filter(note => note.id !== id));
+  const deleteNote = async (id: string) => {
+    const { error } = await supabase
+      .from('notes')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: "Error deleting note",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setNotes(notes.filter(note => note.id !== id));
+    }
   };
+
+  if (loading) {
+    return (
+      <Card className="gradient-card border shadow-soft">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="gradient-card border shadow-soft hover-lift">
@@ -65,6 +154,7 @@ export const QuickNotes = () => {
               <StickyNote className="w-4 h-4 text-accent-foreground" />
             </div>
             Quick Notes
+            <Cloud className="w-4 h-4 text-muted-foreground ml-1" />
           </CardTitle>
           <Button
             onClick={() => setIsAdding(!isAdding)}
@@ -84,12 +174,14 @@ export const QuickNotes = () => {
               placeholder="Note title..."
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
+              disabled={syncing}
             />
             <Textarea
               placeholder="Write your note..."
               value={newContent}
               onChange={(e) => setNewContent(e.target.value)}
               rows={3}
+              disabled={syncing}
             />
             <div className="flex items-center justify-between">
               <div className="flex gap-2">
@@ -105,8 +197,9 @@ export const QuickNotes = () => {
                   />
                 ))}
               </div>
-              <Button onClick={addNote} size="sm" className="gradient-primary">
-                <Save className="w-4 h-4 mr-1" /> Save
+              <Button onClick={addNote} size="sm" className="gradient-primary" disabled={syncing}>
+                {syncing ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+                Save
               </Button>
             </div>
           </div>
@@ -134,7 +227,7 @@ export const QuickNotes = () => {
                       className="bg-background/50"
                     />
                     <Textarea
-                      defaultValue={note.content}
+                      defaultValue={note.content || ''}
                       id={`content-${note.id}`}
                       rows={2}
                       className="bg-background/50"
@@ -175,7 +268,7 @@ export const QuickNotes = () => {
                     </div>
                     <p className="text-sm text-foreground/80 mt-1 line-clamp-3">{note.content}</p>
                     <p className="text-xs text-foreground/50 mt-2">
-                      {new Date(note.updatedAt).toLocaleDateString()}
+                      {new Date(note.updated_at).toLocaleDateString()}
                     </p>
                   </>
                 )}

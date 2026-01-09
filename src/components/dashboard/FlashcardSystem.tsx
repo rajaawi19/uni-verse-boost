@@ -1,30 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { Brain, Plus, RotateCcw, Trash2, Play, CheckCircle, XCircle, Clock, Sparkles } from 'lucide-react';
-
-interface Flashcard {
-  id: string;
-  front: string;
-  back: string;
-  deck: string;
-  createdAt: string;
-  // SM-2 algorithm fields
-  easeFactor: number;
-  interval: number;
-  repetitions: number;
-  nextReview: string;
-}
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Brain, Plus, Trash2, Play, CheckCircle, XCircle, Clock, Sparkles, Cloud, Loader2 } from 'lucide-react';
 
 interface Deck {
   id: string;
   name: string;
   color: string;
+}
+
+interface Flashcard {
+  id: string;
+  deck_id: string;
+  front: string;
+  back: string;
+  easiness: number;
+  interval: number;
+  repetitions: number;
+  next_review: string;
 }
 
 const DECK_COLORS = [
@@ -39,10 +39,12 @@ const DECK_COLORS = [
 ];
 
 export function FlashcardSystem() {
-  const [flashcards, setFlashcards] = useLocalStorage<Flashcard[]>('student-flashcards', []);
-  const [decks, setDecks] = useLocalStorage<Deck[]>('student-decks', [
-    { id: 'default', name: 'General', color: 'bg-blue-500' }
-  ]);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
+  const [decks, setDecks] = useState<Deck[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   
   const [isStudying, setIsStudying] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -51,106 +53,216 @@ export function FlashcardSystem() {
   
   const [newFront, setNewFront] = useState('');
   const [newBack, setNewBack] = useState('');
-  const [selectedDeck, setSelectedDeck] = useState('default');
+  const [selectedDeck, setSelectedDeck] = useState<string>('');
   const [newDeckName, setNewDeckName] = useState('');
+
+  // Fetch decks and flashcards from database
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchData = async () => {
+      setLoading(true);
+      
+      // Fetch decks
+      const { data: deckData, error: deckError } = await supabase
+        .from('flashcard_decks')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true });
+
+      if (deckError) {
+        toast({
+          title: "Error loading decks",
+          description: deckError.message,
+          variant: "destructive",
+        });
+      } else {
+        const processedDecks = (deckData || []).map((deck, index) => ({
+          ...deck,
+          color: DECK_COLORS[index % DECK_COLORS.length],
+        }));
+        setDecks(processedDecks);
+        if (processedDecks.length > 0) {
+          setSelectedDeck(processedDecks[0].id);
+        }
+      }
+
+      // Fetch flashcards
+      const { data: cardData, error: cardError } = await supabase
+        .from('flashcards')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (cardError) {
+        toast({
+          title: "Error loading flashcards",
+          description: cardError.message,
+          variant: "destructive",
+        });
+      } else {
+        setFlashcards(cardData || []);
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [user, toast]);
 
   // Get cards due for review
   const getDueCards = () => {
     const now = new Date().toISOString();
-    return flashcards.filter(card => card.nextReview <= now);
+    return flashcards.filter(card => card.next_review <= now);
   };
 
   // SM-2 Algorithm implementation
-  const calculateNextReview = (card: Flashcard, quality: number): Flashcard => {
-    let { easeFactor, interval, repetitions } = card;
+  const calculateNextReview = (card: Flashcard, quality: number) => {
+    let easiness = card.easiness;
+    let interval = card.interval;
+    let repetitions = card.repetitions;
 
     if (quality < 3) {
-      // Failed - reset
       repetitions = 0;
       interval = 1;
     } else {
-      // Success
       if (repetitions === 0) {
         interval = 1;
       } else if (repetitions === 1) {
         interval = 6;
       } else {
-        interval = Math.round(interval * easeFactor);
+        interval = Math.round(interval * easiness);
       }
       repetitions += 1;
     }
 
-    // Update ease factor
-    easeFactor = Math.max(1.3, easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
+    easiness = Math.max(1.3, easiness + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
 
     const nextReview = new Date();
     nextReview.setDate(nextReview.getDate() + interval);
 
     return {
-      ...card,
-      easeFactor,
+      easiness,
       interval,
       repetitions,
-      nextReview: nextReview.toISOString(),
+      next_review: nextReview.toISOString(),
     };
   };
 
-  const addFlashcard = () => {
-    if (!newFront.trim() || !newBack.trim()) return;
+  const addDeck = async () => {
+    if (!newDeckName.trim() || !user) return;
 
-    const newCard: Flashcard = {
-      id: Date.now().toString(),
-      front: newFront.trim(),
-      back: newBack.trim(),
-      deck: selectedDeck,
-      createdAt: new Date().toISOString(),
-      easeFactor: 2.5,
-      interval: 0,
-      repetitions: 0,
-      nextReview: new Date().toISOString(),
-    };
+    setSyncing(true);
+    const { data, error } = await supabase
+      .from('flashcard_decks')
+      .insert({
+        user_id: user.id,
+        name: newDeckName.trim(),
+      })
+      .select()
+      .single();
 
-    setFlashcards([...flashcards, newCard]);
-    setNewFront('');
-    setNewBack('');
+    if (error) {
+      toast({
+        title: "Error creating deck",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else if (data) {
+      const newDeck = {
+        ...data,
+        color: DECK_COLORS[decks.length % DECK_COLORS.length],
+      };
+      setDecks([...decks, newDeck]);
+      setNewDeckName('');
+      if (!selectedDeck) {
+        setSelectedDeck(data.id);
+      }
+    }
+    setSyncing(false);
   };
 
-  const addDeck = () => {
-    if (!newDeckName.trim()) return;
+  const addFlashcard = async () => {
+    if (!newFront.trim() || !newBack.trim() || !selectedDeck || !user) return;
 
-    const newDeck: Deck = {
-      id: Date.now().toString(),
-      name: newDeckName.trim(),
-      color: DECK_COLORS[decks.length % DECK_COLORS.length],
-    };
+    setSyncing(true);
+    const { data, error } = await supabase
+      .from('flashcards')
+      .insert({
+        user_id: user.id,
+        deck_id: selectedDeck,
+        front: newFront.trim(),
+        back: newBack.trim(),
+        easiness: 2.5,
+        interval: 0,
+        repetitions: 0,
+        next_review: new Date().toISOString(),
+      })
+      .select()
+      .single();
 
-    setDecks([...decks, newDeck]);
-    setNewDeckName('');
+    if (error) {
+      toast({
+        title: "Error adding flashcard",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else if (data) {
+      setFlashcards([...flashcards, data]);
+      setNewFront('');
+      setNewBack('');
+    }
+    setSyncing(false);
   };
 
-  const deleteDeck = (deckId: string) => {
-    if (deckId === 'default') return;
-    setDecks(decks.filter(d => d.id !== deckId));
-    setFlashcards(flashcards.filter(c => c.deck !== deckId));
+  const deleteDeck = async (deckId: string) => {
+    const { error } = await supabase
+      .from('flashcard_decks')
+      .delete()
+      .eq('id', deckId);
+
+    if (error) {
+      toast({
+        title: "Error deleting deck",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setDecks(decks.filter(d => d.id !== deckId));
+      setFlashcards(flashcards.filter(c => c.deck_id !== deckId));
+      if (selectedDeck === deckId) {
+        setSelectedDeck(decks.length > 1 ? decks[0].id : '');
+      }
+    }
   };
 
-  const deleteCard = (cardId: string) => {
-    setFlashcards(flashcards.filter(c => c.id !== cardId));
+  const deleteCard = async (cardId: string) => {
+    const { error } = await supabase
+      .from('flashcards')
+      .delete()
+      .eq('id', cardId);
+
+    if (error) {
+      toast({
+        title: "Error deleting card",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setFlashcards(flashcards.filter(c => c.id !== cardId));
+    }
   };
 
   const startStudySession = (deckId?: string) => {
     let cardsToStudy = getDueCards();
     if (deckId) {
-      cardsToStudy = cardsToStudy.filter(c => c.deck === deckId);
+      cardsToStudy = cardsToStudy.filter(c => c.deck_id === deckId);
     }
     
-    // Shuffle cards
     cardsToStudy.sort(() => Math.random() - 0.5);
     
     if (cardsToStudy.length === 0) {
-      // If no due cards, study all cards from the deck
       cardsToStudy = deckId 
-        ? flashcards.filter(c => c.deck === deckId)
+        ? flashcards.filter(c => c.deck_id === deckId)
         : [...flashcards];
       cardsToStudy.sort(() => Math.random() - 0.5);
     }
@@ -163,13 +275,20 @@ export function FlashcardSystem() {
     }
   };
 
-  const handleAnswer = (quality: number) => {
+  const handleAnswer = async (quality: number) => {
     const currentCard = studyQueue[currentCardIndex];
-    const updatedCard = calculateNextReview(currentCard, quality);
+    const updates = calculateNextReview(currentCard, quality);
     
-    setFlashcards(flashcards.map(c => 
-      c.id === currentCard.id ? updatedCard : c
-    ));
+    const { error } = await supabase
+      .from('flashcards')
+      .update(updates)
+      .eq('id', currentCard.id);
+
+    if (!error) {
+      setFlashcards(flashcards.map(c => 
+        c.id === currentCard.id ? { ...c, ...updates } : c
+      ));
+    }
 
     if (currentCardIndex < studyQueue.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
@@ -181,16 +300,26 @@ export function FlashcardSystem() {
   };
 
   const getDeckStats = (deckId: string) => {
-    const deckCards = flashcards.filter(c => c.deck === deckId);
-    const dueCards = deckCards.filter(c => c.nextReview <= new Date().toISOString());
+    const deckCards = flashcards.filter(c => c.deck_id === deckId);
+    const dueCards = deckCards.filter(c => c.next_review <= new Date().toISOString());
     return { total: deckCards.length, due: dueCards.length };
   };
 
   const dueCount = getDueCards().length;
 
+  if (loading) {
+    return (
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (isStudying && studyQueue.length > 0) {
     const currentCard = studyQueue[currentCardIndex];
-    const deck = decks.find(d => d.id === currentCard.deck);
+    const deck = decks.find(d => d.id === currentCard.deck_id);
 
     return (
       <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
@@ -286,6 +415,7 @@ export function FlashcardSystem() {
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Brain className="w-5 h-5 text-primary" />
             Flashcards
+            <Cloud className="w-4 h-4 text-muted-foreground" />
           </CardTitle>
           {dueCount > 0 && (
             <Badge variant="secondary" className="bg-primary/10 text-primary">
@@ -355,38 +485,47 @@ export function FlashcardSystem() {
           </TabsContent>
 
           <TabsContent value="create" className="space-y-3">
-            <div className="space-y-2">
-              <Input
-                placeholder="Question / Front side"
-                value={newFront}
-                onChange={(e) => setNewFront(e.target.value)}
-              />
-              <Textarea
-                placeholder="Answer / Back side"
-                value={newBack}
-                onChange={(e) => setNewBack(e.target.value)}
-                rows={3}
-              />
-              <select
-                value={selectedDeck}
-                onChange={(e) => setSelectedDeck(e.target.value)}
-                className="w-full px-3 py-2 bg-background border border-input rounded-md text-sm"
-              >
-                {decks.map(deck => (
-                  <option key={deck.id} value={deck.id}>{deck.name}</option>
-                ))}
-              </select>
-              <Button className="w-full" onClick={addFlashcard}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Flashcard
-              </Button>
-            </div>
+            {decks.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Create a deck first in the Decks tab</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Input
+                  placeholder="Question / Front side"
+                  value={newFront}
+                  onChange={(e) => setNewFront(e.target.value)}
+                  disabled={syncing}
+                />
+                <Textarea
+                  placeholder="Answer / Back side"
+                  value={newBack}
+                  onChange={(e) => setNewBack(e.target.value)}
+                  rows={3}
+                  disabled={syncing}
+                />
+                <select
+                  value={selectedDeck}
+                  onChange={(e) => setSelectedDeck(e.target.value)}
+                  className="w-full px-3 py-2 bg-background border border-input rounded-md text-sm"
+                  disabled={syncing}
+                >
+                  {decks.map(deck => (
+                    <option key={deck.id} value={deck.id}>{deck.name}</option>
+                  ))}
+                </select>
+                <Button className="w-full" onClick={addFlashcard} disabled={syncing}>
+                  {syncing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+                  Add Flashcard
+                </Button>
+              </div>
+            )}
 
             {flashcards.length > 0 && (
               <div className="space-y-2 max-h-[200px] overflow-y-auto">
                 <p className="text-sm font-medium text-muted-foreground">Recent Cards</p>
                 {flashcards.slice(-5).reverse().map(card => {
-                  const deck = decks.find(d => d.id === card.deck);
+                  const deck = decks.find(d => d.id === card.deck_id);
                   return (
                     <div 
                       key={card.id}
@@ -417,28 +556,33 @@ export function FlashcardSystem() {
                 value={newDeckName}
                 onChange={(e) => setNewDeckName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addDeck()}
+                disabled={syncing}
               />
-              <Button onClick={addDeck}>
-                <Plus className="w-4 h-4" />
+              <Button onClick={addDeck} disabled={syncing}>
+                {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
               </Button>
             </div>
 
             <div className="space-y-2">
-              {decks.map(deck => {
-                const stats = getDeckStats(deck.id);
-                return (
-                  <div 
-                    key={deck.id}
-                    className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-4 h-4 rounded-full ${deck.color}`}></div>
-                      <div>
-                        <p className="font-medium text-sm">{deck.name}</p>
-                        <p className="text-xs text-muted-foreground">{stats.total} cards</p>
+              {decks.length === 0 ? (
+                <p className="text-center py-4 text-muted-foreground text-sm">
+                  Create your first deck to get started
+                </p>
+              ) : (
+                decks.map(deck => {
+                  const stats = getDeckStats(deck.id);
+                  return (
+                    <div 
+                      key={deck.id}
+                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-4 h-4 rounded-full ${deck.color}`}></div>
+                        <div>
+                          <p className="font-medium text-sm">{deck.name}</p>
+                          <p className="text-xs text-muted-foreground">{stats.total} cards</p>
+                        </div>
                       </div>
-                    </div>
-                    {deck.id !== 'default' && (
                       <Button 
                         size="sm" 
                         variant="ghost"
@@ -446,10 +590,10 @@ export function FlashcardSystem() {
                       >
                         <Trash2 className="w-3 h-3 text-destructive" />
                       </Button>
-                    )}
-                  </div>
-                );
-              })}
+                    </div>
+                  );
+                })
+              )}
             </div>
           </TabsContent>
         </Tabs>

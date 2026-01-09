@@ -1,57 +1,141 @@
-import { useState } from 'react';
-import { Plus, Check, Trash2, Calendar, Flag } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Check, Trash2, Calendar, Flag, Cloud, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { Task } from '@/types/dashboard';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
+interface Task {
+  id: string;
+  title: string;
+  priority: string;
+  category: string;
+  due_date: string | null;
+  completed: boolean;
+  created_at: string;
+}
+
 const priorityColors = {
-  low: 'bg-success/10 text-success border-success/20',
-  medium: 'bg-warning/10 text-warning border-warning/20',
-  high: 'bg-destructive/10 text-destructive border-destructive/20',
+  low: 'bg-green-500/10 text-green-600 border-green-500/20',
+  medium: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
+  high: 'bg-red-500/10 text-red-600 border-red-500/20',
 };
 
 const categories = ['Study', 'Assignment', 'Project', 'Exam', 'Personal', 'Other'];
 
 export const TaskManager = () => {
-  const [tasks, setTasks] = useLocalStorage<Task[]>('student-tasks', []);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [newTask, setNewTask] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [category, setCategory] = useState('Study');
   const [dueDate, setDueDate] = useState('');
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
 
-  const addTask = () => {
-    if (!newTask.trim()) return;
-    
-    const task: Task = {
-      id: Date.now().toString(),
-      title: newTask,
-      priority,
-      category,
-      dueDate: dueDate || undefined,
-      completed: false,
-      createdAt: new Date().toISOString(),
+  // Fetch tasks from database
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchTasks = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        toast({
+          title: "Error loading tasks",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        setTasks(data || []);
+      }
+      setLoading(false);
     };
+
+    fetchTasks();
+  }, [user, toast]);
+
+  const addTask = async () => {
+    if (!newTask.trim() || !user) return;
     
-    setTasks([task, ...tasks]);
-    setNewTask('');
-    setDueDate('');
+    setSyncing(true);
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert({
+        user_id: user.id,
+        title: newTask,
+        priority,
+        category,
+        due_date: dueDate || null,
+        completed: false,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error adding task",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else if (data) {
+      setTasks([data, ...tasks]);
+      setNewTask('');
+      setDueDate('');
+    }
+    setSyncing(false);
   };
 
-  const toggleTask = (id: string) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+  const toggleTask = async (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    const { error } = await supabase
+      .from('tasks')
+      .update({ completed: !task.completed })
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: "Error updating task",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setTasks(tasks.map(t => 
+        t.id === id ? { ...t, completed: !t.completed } : t
+      ));
+    }
   };
 
-  const deleteTask = (id: string) => {
-    setTasks(tasks.filter(task => task.id !== id));
+  const deleteTask = async (id: string) => {
+    const { error } = await supabase
+      .from('tasks')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: "Error deleting task",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setTasks(tasks.filter(t => t.id !== id));
+    }
   };
 
   const filteredTasks = tasks.filter(task => {
@@ -61,6 +145,16 @@ export const TaskManager = () => {
   });
 
   const pendingCount = tasks.filter(t => !t.completed).length;
+
+  if (loading) {
+    return (
+      <Card className="gradient-card border shadow-soft">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="gradient-card border shadow-soft hover-lift">
@@ -76,6 +170,7 @@ export const TaskManager = () => {
                 {pendingCount} pending
               </Badge>
             )}
+            <Cloud className="w-4 h-4 text-muted-foreground ml-1" />
           </CardTitle>
           <div className="flex gap-1">
             {(['all', 'active', 'completed'] as const).map((f) => (
@@ -100,6 +195,7 @@ export const TaskManager = () => {
             onChange={(e) => setNewTask(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addTask()}
             className="bg-background"
+            disabled={syncing}
           />
           <div className="flex flex-wrap gap-2">
             <Select value={priority} onValueChange={(v) => setPriority(v as 'low' | 'medium' | 'high')}>
@@ -128,8 +224,9 @@ export const TaskManager = () => {
               onChange={(e) => setDueDate(e.target.value)}
               className="w-36 h-9 text-sm"
             />
-            <Button onClick={addTask} size="sm" className="gradient-primary">
-              <Plus className="w-4 h-4 mr-1" /> Add
+            <Button onClick={addTask} size="sm" className="gradient-primary" disabled={syncing}>
+              {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4 mr-1" />}
+              Add
             </Button>
           </div>
         </div>
@@ -167,10 +264,10 @@ export const TaskManager = () => {
                     <Badge variant="secondary" className="text-xs">
                       {task.category}
                     </Badge>
-                    {task.dueDate && (
+                    {task.due_date && (
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {new Date(task.dueDate).toLocaleDateString()}
+                        {new Date(task.due_date).toLocaleDateString()}
                       </span>
                     )}
                   </div>
