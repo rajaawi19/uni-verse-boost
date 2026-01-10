@@ -19,12 +19,12 @@ interface Note {
 }
 
 const noteColors = [
-  'bg-yellow-100 border-yellow-200',
-  'bg-blue-100 border-blue-200',
-  'bg-green-100 border-green-200',
-  'bg-pink-100 border-pink-200',
-  'bg-purple-100 border-purple-200',
-  'bg-orange-100 border-orange-200',
+  'bg-primary/10 border-primary/20',
+  'bg-accent/10 border-accent/20',
+  'bg-success/10 border-success/20',
+  'bg-warning/10 border-warning/20',
+  'bg-secondary border-border',
+  'bg-muted border-border',
 ];
 
 export const QuickNotes = () => {
@@ -266,8 +266,8 @@ export const QuickNotes = () => {
                         </Button>
                       </div>
                     </div>
-                    <p className="text-sm text-foreground/80 mt-1 line-clamp-3">{note.content}</p>
-                    <p className="text-xs text-foreground/50 mt-2">
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-3">{note.content}</p>
+                    <p className="text-xs text-muted-foreground/70 mt-2">
                       {new Date(note.updated_at).toLocaleDateString()}
                     </p>
                   </>

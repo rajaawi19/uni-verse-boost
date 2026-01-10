@@ -55,10 +55,10 @@ export const StatsOverview = () => {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
-                <stat.icon className={`w-5 h-5 bg-gradient-to-r ${stat.color} bg-clip-text`} style={{ color: 'transparent', backgroundClip: 'text', WebkitBackgroundClip: 'text', background: `linear-gradient(to right, var(--tw-gradient-stops))`, WebkitTextFillColor: 'transparent' }} />
+                <stat.icon className="w-5 h-5 text-foreground" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                 <p className="text-xs text-muted-foreground">{stat.label}</p>
               </div>
             </div>

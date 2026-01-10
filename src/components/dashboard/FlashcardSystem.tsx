@@ -28,14 +28,14 @@ interface Flashcard {
 }
 
 const DECK_COLORS = [
-  'bg-red-500',
-  'bg-blue-500',
-  'bg-green-500',
-  'bg-yellow-500',
-  'bg-purple-500',
-  'bg-pink-500',
-  'bg-indigo-500',
-  'bg-orange-500',
+  'bg-destructive',
+  'bg-primary',
+  'bg-success',
+  'bg-warning',
+  'bg-accent',
+  'bg-secondary',
+  'bg-muted-foreground',
+  'bg-primary/80',
 ];
 
 export function FlashcardSystem() {
@@ -341,7 +341,7 @@ export function FlashcardSystem() {
         </CardHeader>
         <CardContent className="space-y-4">
           {deck && (
-            <Badge className={`${deck.color} text-white`}>{deck.name}</Badge>
+            <Badge className={`${deck.color} text-primary-foreground`}>{deck.name}</Badge>
           )}
           
           <div 
@@ -351,14 +351,14 @@ export function FlashcardSystem() {
             <div className="text-center">
               {!showAnswer ? (
                 <>
-                  <p className="text-lg font-medium mb-2">{currentCard.front}</p>
+                  <p className="text-lg font-medium mb-2 text-foreground">{currentCard.front}</p>
                   <p className="text-sm text-muted-foreground">Click to reveal answer</p>
                 </>
               ) : (
                 <>
                   <p className="text-sm text-muted-foreground mb-2">{currentCard.front}</p>
                   <div className="border-t border-border my-3"></div>
-                  <p className="text-lg font-medium">{currentCard.back}</p>
+                  <p className="text-lg font-medium text-foreground">{currentCard.back}</p>
                 </>
               )}
             </div>
@@ -370,34 +370,34 @@ export function FlashcardSystem() {
               <div className="grid grid-cols-4 gap-2">
                 <Button 
                   variant="outline" 
-                  className="flex flex-col h-auto py-3 border-red-500/50 hover:bg-red-500/10"
+                  className="flex flex-col h-auto py-3 border-destructive/50 hover:bg-destructive/10"
                   onClick={() => handleAnswer(1)}
                 >
-                  <XCircle className="w-4 h-4 text-red-500 mb-1" />
+                  <XCircle className="w-4 h-4 text-destructive mb-1" />
                   <span className="text-xs">Again</span>
                 </Button>
                 <Button 
                   variant="outline"
-                  className="flex flex-col h-auto py-3 border-orange-500/50 hover:bg-orange-500/10"
+                  className="flex flex-col h-auto py-3 border-warning/50 hover:bg-warning/10"
                   onClick={() => handleAnswer(3)}
                 >
-                  <Clock className="w-4 h-4 text-orange-500 mb-1" />
+                  <Clock className="w-4 h-4 text-warning mb-1" />
                   <span className="text-xs">Hard</span>
                 </Button>
                 <Button 
                   variant="outline"
-                  className="flex flex-col h-auto py-3 border-blue-500/50 hover:bg-blue-500/10"
+                  className="flex flex-col h-auto py-3 border-primary/50 hover:bg-primary/10"
                   onClick={() => handleAnswer(4)}
                 >
-                  <CheckCircle className="w-4 h-4 text-blue-500 mb-1" />
+                  <CheckCircle className="w-4 h-4 text-primary mb-1" />
                   <span className="text-xs">Good</span>
                 </Button>
                 <Button 
                   variant="outline"
-                  className="flex flex-col h-auto py-3 border-green-500/50 hover:bg-green-500/10"
+                  className="flex flex-col h-auto py-3 border-success/50 hover:bg-success/10"
                   onClick={() => handleAnswer(5)}
                 >
-                  <Sparkles className="w-4 h-4 text-green-500 mb-1" />
+                  <Sparkles className="w-4 h-4 text-success mb-1" />
                   <span className="text-xs">Easy</span>
                 </Button>
               </div>
@@ -463,7 +463,7 @@ export function FlashcardSystem() {
                         <div className="flex items-center gap-3">
                           <div className={`w-3 h-3 rounded-full ${deck.color}`}></div>
                           <div>
-                            <p className="font-medium text-sm">{deck.name}</p>
+                            <p className="font-medium text-sm text-foreground">{deck.name}</p>
                             <p className="text-xs text-muted-foreground">
                               {stats.total} cards • {stats.due} due
                             </p>

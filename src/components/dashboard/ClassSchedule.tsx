@@ -12,13 +12,13 @@ import { cn } from '@/lib/utils';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const COLORS = [
-  'bg-blue-500',
-  'bg-green-500',
-  'bg-purple-500',
-  'bg-orange-500',
-  'bg-pink-500',
-  'bg-cyan-500',
-  'bg-red-500',
+  'bg-primary',
+  'bg-success',
+  'bg-accent',
+  'bg-warning',
+  'bg-secondary',
+  'bg-muted-foreground',
+  'bg-destructive',
 ];
 
 export const ClassSchedule = () => {
@@ -70,8 +70,8 @@ export const ClassSchedule = () => {
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="font-display flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center">
-              <GraduationCap className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
+              <GraduationCap className="w-4 h-4 text-primary-foreground" />
             </div>
             Class Schedule
           </CardTitle>
@@ -187,7 +187,7 @@ export const ClassSchedule = () => {
               >
                 <div className={cn("w-1 h-14 rounded-full", classItem.color)} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold truncate">{classItem.name}</p>
+                  <p className="font-semibold truncate text-foreground">{classItem.name}</p>
                   <div className="flex flex-wrap gap-2 mt-1 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />

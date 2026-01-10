@@ -136,7 +136,7 @@ export const PomodoroTimer = () => {
               />
             </svg>
             <div className="absolute text-center">
-              <p className="text-5xl font-mono font-bold">{formatTime(timeLeft)}</p>
+              <p className="text-5xl font-mono font-bold text-foreground">{formatTime(timeLeft)}</p>
               <p className="text-sm text-muted-foreground mt-1">{TIMER_SETTINGS[mode].label}</p>
             </div>
           </div>

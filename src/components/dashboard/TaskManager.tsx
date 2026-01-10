@@ -21,10 +21,10 @@ interface Task {
   created_at: string;
 }
 
-const priorityColors = {
-  low: 'bg-green-500/10 text-green-600 border-green-500/20',
-  medium: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
-  high: 'bg-red-500/10 text-red-600 border-red-500/20',
+const priorityColors: Record<string, string> = {
+  low: 'bg-success/10 text-success border-success/20',
+  medium: 'bg-warning/10 text-warning border-warning/20',
+  high: 'bg-destructive/10 text-destructive border-destructive/20',
 };
 
 const categories = ['Study', 'Assignment', 'Project', 'Exam', 'Personal', 'Other'];
