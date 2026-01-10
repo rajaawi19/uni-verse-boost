@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, StickyNote, Edit2, Save, Cloud, Loader2 } from 'lucide-react';
+import { Plus, Trash2, StickyNote, Edit2, Save, Cloud, Loader2, X, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 interface Note {
   id: string;
@@ -38,6 +40,7 @@ export const QuickNotes = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [selectedColor, setSelectedColor] = useState(noteColors[0]);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   // Fetch notes from database
   useEffect(() => {
@@ -215,12 +218,13 @@ export const QuickNotes = () => {
               <div
                 key={note.id}
                 className={cn(
-                  "p-4 rounded-lg border transition-all animate-fade-in",
+                  "p-4 rounded-lg border transition-all animate-fade-in cursor-pointer hover:shadow-md hover:scale-[1.02]",
                   note.color
                 )}
+                onClick={() => setSelectedNote(note)}
               >
                 {editingId === note.id ? (
-                  <div className="space-y-2">
+                  <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
                     <Input
                       defaultValue={note.title}
                       id={`title-${note.id}`}
@@ -247,7 +251,7 @@ export const QuickNotes = () => {
                   <>
                     <div className="flex items-start justify-between gap-2">
                       <h4 className="font-semibold text-foreground truncate">{note.title}</h4>
-                      <div className="flex gap-1 shrink-0">
+                      <div className="flex gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -276,6 +280,68 @@ export const QuickNotes = () => {
             ))
           )}
         </div>
+
+        {/* Note Detail Dialog */}
+        <Dialog open={!!selectedNote} onOpenChange={(open) => !open && setSelectedNote(null)}>
+          <DialogContent className="w-[90vw] max-w-md sm:max-w-lg h-auto max-h-[80vh] overflow-hidden flex flex-col">
+            <DialogHeader className="pb-2">
+              <DialogTitle className="text-lg sm:text-xl font-display break-words pr-6">
+                {selectedNote?.title}
+              </DialogTitle>
+            </DialogHeader>
+            
+            {selectedNote && (
+              <div className="flex-1 overflow-y-auto space-y-4">
+                {/* Content */}
+                <div className={cn("p-4 rounded-lg border min-h-[120px]", selectedNote.color)}>
+                  <p className="text-sm sm:text-base text-foreground whitespace-pre-wrap break-words">
+                    {selectedNote.content || 'No content'}
+                  </p>
+                </div>
+
+                {/* Metadata */}
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 shrink-0" />
+                    <span>Created: {format(new Date(selectedNote.created_at), 'PPP')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 shrink-0" />
+                    <span>Last updated: {format(new Date(selectedNote.updated_at), 'PPP p')}</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => {
+                      setEditingId(selectedNote.id);
+                      setSelectedNote(null);
+                    }}
+                  >
+                    <Edit2 className="w-4 h-4 mr-2" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => {
+                      deleteNote(selectedNote.id);
+                      setSelectedNote(null);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
