@@ -18,12 +18,12 @@ interface Expense {
 }
 
 const CATEGORIES = [
-  { name: 'Food', icon: '🍔', color: 'bg-orange-500' },
-  { name: 'Books', icon: '📚', color: 'bg-blue-500' },
-  { name: 'Entertainment', icon: '🎮', color: 'bg-purple-500' },
-  { name: 'Transport', icon: '🚌', color: 'bg-green-500' },
-  { name: 'Supplies', icon: '✏️', color: 'bg-yellow-500' },
-  { name: 'Other', icon: '📦', color: 'bg-gray-500' },
+  { name: 'Food', icon: '🍔', color: 'bg-accent' },
+  { name: 'Books', icon: '📚', color: 'bg-primary' },
+  { name: 'Entertainment', icon: '🎮', color: 'bg-secondary' },
+  { name: 'Transport', icon: '🚌', color: 'bg-success' },
+  { name: 'Supplies', icon: '✏️', color: 'bg-warning' },
+  { name: 'Other', icon: '📦', color: 'bg-muted-foreground' },
 ];
 
 export function ExpenseTracker() {
@@ -224,7 +224,7 @@ export function ExpenseTracker() {
                 </div>
               ) : (
                 <p 
-                  className="text-2xl font-bold cursor-pointer hover:text-primary transition-colors"
+                  className="text-2xl font-bold text-foreground cursor-pointer hover:text-primary transition-colors"
                   onClick={() => setEditingBudget(true)}
                 >
                   ${monthlyBudget.toFixed(2)}
@@ -233,7 +233,7 @@ export function ExpenseTracker() {
             </div>
             <div className="text-right">
               <p className="text-sm text-muted-foreground">Remaining</p>
-              <p className={`text-2xl font-bold ${remaining >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              <p className={`text-2xl font-bold ${remaining >= 0 ? 'text-success' : 'text-destructive'}`}>
                 ${remaining.toFixed(2)}
               </p>
             </div>
@@ -241,7 +241,7 @@ export function ExpenseTracker() {
           
           <Progress 
             value={spentPercentage} 
-            className={`h-2 ${spentPercentage > 90 ? '[&>div]:bg-red-500' : spentPercentage > 70 ? '[&>div]:bg-yellow-500' : ''}`}
+            className={`h-2 ${spentPercentage > 90 ? '[&>div]:bg-destructive' : spentPercentage > 70 ? '[&>div]:bg-warning' : ''}`}
           />
           
           <div className="flex items-center justify-between text-sm">
@@ -338,7 +338,7 @@ export function ExpenseTracker() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className={`${cat?.color} text-white text-xs`}>
+                      <Badge variant="secondary" className={`${cat?.color} text-primary-foreground text-xs`}>
                         ${Number(expense.amount).toFixed(2)}
                       </Badge>
                       <Button 

@@ -147,7 +147,7 @@ export const GPACalculator = () => {
                 className="flex items-center justify-between p-3 rounded-lg border bg-background/50 animate-fade-in"
               >
                 <div className="min-w-0">
-                  <p className="font-medium truncate">{grade.courseName}</p>
+                  <p className="font-medium truncate text-foreground">{grade.courseName}</p>
                   <p className="text-xs text-muted-foreground">
                     {grade.credits} credits
                   </p>
