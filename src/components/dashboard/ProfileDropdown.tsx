@@ -45,7 +45,7 @@ export const ProfileDropdown = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-auto p-0 hover:bg-transparent">
+        <Button variant="ghost" className="h-auto p-0 hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
           <Avatar 
             className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-primary/20 cursor-pointer hover:border-primary/40 transition-colors"
           >
@@ -56,7 +56,7 @@ export const ProfileDropdown = () => {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-56">
+      <DropdownMenuContent align="start" className="w-52 sm:w-56" sideOffset={8}>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{displayName}</p>

@@ -40,6 +40,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     if (!error && data) {
       setProfile(data);
+    } else if (!data) {
+      // Profile doesn't exist yet, create one
+      const { data: newProfile } = await supabase
+        .from('profiles')
+        .insert({ user_id: userId })
+        .select()
+        .single();
+      
+      if (newProfile) {
+        setProfile(newProfile);
+      }
+    }
+  };
+
+  // Expose refetch function for external use
+  const refetchProfile = async () => {
+    if (user?.id) {
+      await fetchProfile(user.id);
     }
   };
 
