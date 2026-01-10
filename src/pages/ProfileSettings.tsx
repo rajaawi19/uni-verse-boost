@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 import { ThemeSwitcher } from '@/components/dashboard/ThemeSwitcher';
 import { toast } from 'sonner';
 import { 
@@ -31,6 +32,9 @@ const ProfileSettings = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [emailStudyReminders, setEmailStudyReminders] = useState(true);
+  const [emailTaskDueDates, setEmailTaskDueDates] = useState(true);
+  const [isSavingNotifications, setIsSavingNotifications] = useState(false);
 
   // Update display name when profile loads
   useEffect(() => {
@@ -56,6 +60,47 @@ const ProfileSettings = () => {
     };
     fetchAvatar();
   }, [user?.id]);
+
+  // Fetch notification settings
+  useEffect(() => {
+    const fetchNotificationSettings = async () => {
+      if (user?.id) {
+        const { data } = await supabase
+          .from('user_settings')
+          .select('email_study_reminders, email_task_due_dates')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (data) {
+          setEmailStudyReminders(data.email_study_reminders ?? true);
+          setEmailTaskDueDates(data.email_task_due_dates ?? true);
+        }
+      }
+    };
+    fetchNotificationSettings();
+  }, [user?.id]);
+
+  const handleSaveNotifications = async () => {
+    if (!user) return;
+    
+    setIsSavingNotifications(true);
+    try {
+      const { error } = await supabase
+        .from('user_settings')
+        .update({
+          email_study_reminders: emailStudyReminders,
+          email_task_due_dates: emailTaskDueDates
+        })
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      toast.success('Notification preferences saved!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to save notification preferences');
+    } finally {
+      setIsSavingNotifications(false);
+    }
+  };
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -319,21 +364,66 @@ const ProfileSettings = () => {
             </CardContent>
           </Card>
 
-          {/* Notifications Card (placeholder for future) */}
+          {/* Notifications Card */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5 text-primary" />
-                Notifications
+                Email Notifications
               </CardTitle>
               <CardDescription>
-                Configure how you receive notifications
+                Configure how you receive email notifications
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Notification settings coming soon...
-              </p>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="study-reminders" className="font-medium">
+                    Study Reminders
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Receive email reminders to stay on track with your study schedule
+                  </p>
+                </div>
+                <Switch
+                  id="study-reminders"
+                  checked={emailStudyReminders}
+                  onCheckedChange={setEmailStudyReminders}
+                />
+              </div>
+              
+              <Separator />
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="task-due-dates" className="font-medium">
+                    Task Due Date Alerts
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Get notified when tasks are approaching their due dates
+                  </p>
+                </div>
+                <Switch
+                  id="task-due-dates"
+                  checked={emailTaskDueDates}
+                  onCheckedChange={setEmailTaskDueDates}
+                />
+              </div>
+              
+              <Separator />
+              
+              <Button 
+                onClick={handleSaveNotifications} 
+                disabled={isSavingNotifications}
+                className="w-full sm:w-auto"
+              >
+                {isSavingNotifications ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
+                Save Notification Preferences
+              </Button>
             </CardContent>
           </Card>
         </div>
