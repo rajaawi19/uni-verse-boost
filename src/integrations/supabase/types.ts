@@ -208,6 +208,8 @@ export type Database = {
       user_settings: {
         Row: {
           created_at: string
+          email_study_reminders: boolean
+          email_task_due_dates: boolean
           id: string
           monthly_budget: number | null
           updated_at: string
@@ -215,6 +217,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          email_study_reminders?: boolean
+          email_task_due_dates?: boolean
           id?: string
           monthly_budget?: number | null
           updated_at?: string
@@ -222,6 +226,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          email_study_reminders?: boolean
+          email_task_due_dates?: boolean
           id?: string
           monthly_budget?: number | null
           updated_at?: string
