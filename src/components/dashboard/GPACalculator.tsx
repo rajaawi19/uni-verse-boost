@@ -75,13 +75,13 @@ export const GPACalculator = () => {
   const gpa = parseFloat(calculateGPA().toString());
 
   return (
-    <Card className="gradient-card border shadow-soft hover-lift">
-      <CardHeader className="pb-4">
-        <CardTitle className="font-display flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg gradient-success flex items-center justify-center">
-            <Calculator className="w-4 h-4 text-success-foreground" />
+    <Card className="gradient-card border shadow-soft hover-lift h-full">
+      <CardHeader className="pb-3 sm:pb-4">
+        <CardTitle className="font-display flex items-center gap-2 text-sm sm:text-base">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-success flex items-center justify-center shrink-0">
+            <Calculator className="w-3 h-3 sm:w-4 sm:h-4 text-success-foreground" />
           </div>
-          GPA Calculator
+          <span className="truncate">GPA Calculator</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

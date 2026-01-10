@@ -68,11 +68,13 @@ export const DictionaryWidget = () => {
   };
 
   return (
-    <Card className="gradient-card hover-lift">
+    <Card className="gradient-card hover-lift h-full">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <BookOpen className="h-5 w-5 text-primary" />
-          Dictionary
+        <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <BookOpen className="h-3 h-3 sm:h-4 sm:w-4 text-primary" />
+          </div>
+          <span className="truncate">Dictionary</span>
         </CardTitle>
       </CardHeader>
       <CardContent>

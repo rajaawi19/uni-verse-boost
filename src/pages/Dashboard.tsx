@@ -28,17 +28,17 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <div className="container max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
-          <div className="text-xs sm:text-sm text-muted-foreground">
+          <div className="text-xs sm:text-sm text-muted-foreground truncate max-w-[200px] sm:max-w-none">
             Logged in as <span className="font-medium text-foreground">{user?.email}</span>
           </div>
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <Button variant="ghost" size="sm" onClick={() => navigate('/settings')} className="gap-1 sm:gap-2 text-xs sm:text-sm h-8 sm:h-9">
               <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="hidden xs:inline">Settings</span>
+              Settings
             </Button>
             <Button variant="ghost" size="sm" onClick={signOut} className="gap-1 sm:gap-2 text-xs sm:text-sm h-8 sm:h-9">
               <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="hidden xs:inline">Sign Out</span>
+              Sign Out
             </Button>
           </div>
         </div>
@@ -49,41 +49,39 @@ const Dashboard = () => {
         
         <StatsOverview />
         
-        {/* Main Grid - Tasks, Timer & AI */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-4 sm:mb-5">
-          <TaskManager />
-          <div className="space-y-4 sm:space-y-5">
-            <PomodoroTimer />
-            <Calculator />
+        {/* Row 1: Core Tools - Tasks, Timer, AI, Flashcards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div className="sm:col-span-2 lg:col-span-2">
+            <TaskManager />
           </div>
-          <div className="space-y-4 sm:space-y-5">
-            <AIStudyAssistant />
-            <FlashcardSystem />
-          </div>
+          <PomodoroTimer />
+          <Calculator />
         </div>
         
-        {/* Study Tools Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-4 sm:mb-5">
+        {/* Row 2: Study Helpers */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <AIStudyAssistant />
+          <FlashcardSystem />
           <GPACalculator />
           <QuickNotes />
+        </div>
+
+        {/* Row 3: Reference & Schedule */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+          <ClassSchedule />
           <DictionaryWidget />
           <WikipediaSearch />
         </div>
-
-        {/* Schedule & Tracking */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-4 sm:mb-5">
-          <ClassSchedule />
+        
+        {/* Row 4: Calendar, Expense & Resources */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <CalendarWidget />
           <ExpenseTracker />
-        </div>
-        
-        {/* Info & Resources */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
           <WeatherWidget />
           <ResourceLinks />
         </div>
         
-        <footer className="text-center text-muted-foreground text-xs sm:text-sm mt-8 sm:mt-12 pb-6 sm:pb-8">
+        <footer className="text-center text-muted-foreground text-xs sm:text-sm mt-8 pb-6">
           <p>Made with 💜 for students everywhere</p>
         </footer>
       </div>

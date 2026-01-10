@@ -146,23 +146,23 @@ export const QuickNotes = () => {
   }
 
   return (
-    <Card className="gradient-card border shadow-soft hover-lift">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="font-display flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-accent flex items-center justify-center">
-              <StickyNote className="w-4 h-4 text-accent-foreground" />
+    <Card className="gradient-card border shadow-soft hover-lift h-full">
+      <CardHeader className="pb-3 sm:pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <CardTitle className="font-display flex items-center gap-2 text-sm sm:text-base">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-accent flex items-center justify-center shrink-0">
+              <StickyNote className="w-3 h-3 sm:w-4 sm:h-4 text-accent-foreground" />
             </div>
-            Quick Notes
-            <Cloud className="w-4 h-4 text-muted-foreground ml-1" />
+            <span className="truncate">Quick Notes</span>
+            <Cloud className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground ml-1 shrink-0" />
           </CardTitle>
           <Button
             onClick={() => setIsAdding(!isAdding)}
             size="sm"
             variant={isAdding ? 'secondary' : 'default'}
-            className={!isAdding ? 'gradient-accent' : ''}
+            className={cn(!isAdding ? 'gradient-accent' : '', 'h-7 sm:h-8 text-xs shrink-0')}
           >
-            <Plus className="w-4 h-4 mr-1" />
+            <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
             {isAdding ? 'Cancel' : 'Add'}
           </Button>
         </div>
