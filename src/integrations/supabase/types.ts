@@ -114,6 +114,7 @@ export type Database = {
       }
       notes: {
         Row: {
+          category: string | null
           color: string
           content: string | null
           created_at: string
@@ -123,6 +124,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          category?: string | null
           color?: string
           content?: string | null
           created_at?: string
@@ -132,6 +134,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          category?: string | null
           color?: string
           content?: string | null
           created_at?: string
