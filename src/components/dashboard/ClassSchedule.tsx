@@ -66,14 +66,14 @@ export const ClassSchedule = () => {
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
   return (
-    <Card className="gradient-card border shadow-soft hover-lift">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="font-display flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-              <GraduationCap className="w-4 h-4 text-primary-foreground" />
+    <Card className="gradient-card border shadow-soft hover-lift h-full">
+      <CardHeader className="pb-3 sm:pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <CardTitle className="font-display flex items-center gap-2 text-sm sm:text-base">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
+              <GraduationCap className="w-3 h-3 sm:w-4 sm:h-4 text-primary-foreground" />
             </div>
-            Class Schedule
+            <span className="truncate">Class Schedule</span>
           </CardTitle>
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>

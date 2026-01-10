@@ -157,29 +157,29 @@ export const TaskManager = () => {
   }
 
   return (
-    <Card className="gradient-card border shadow-soft hover-lift">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="font-display flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-              <Check className="w-4 h-4 text-primary-foreground" />
+    <Card className="gradient-card border shadow-soft hover-lift h-full">
+      <CardHeader className="pb-3 sm:pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <CardTitle className="font-display flex items-center gap-2 text-sm sm:text-base">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
+              <Check className="w-3 h-3 sm:w-4 sm:h-4 text-primary-foreground" />
             </div>
-            Tasks
+            <span className="truncate">Tasks</span>
             {pendingCount > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {pendingCount} pending
+              <Badge variant="secondary" className="ml-1 text-xs shrink-0">
+                {pendingCount}
               </Badge>
             )}
-            <Cloud className="w-4 h-4 text-muted-foreground ml-1" />
+            <Cloud className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground ml-1 shrink-0" />
           </CardTitle>
-          <div className="flex gap-1">
+          <div className="flex gap-1 shrink-0">
             {(['all', 'active', 'completed'] as const).map((f) => (
               <Button
                 key={f}
                 variant={filter === f ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setFilter(f)}
-                className="text-xs capitalize"
+                className="text-xs capitalize h-7 px-2"
               >
                 {f}
               </Button>
