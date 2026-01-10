@@ -54,15 +54,20 @@ const ProfileSettings = () => {
   useEffect(() => {
     const fetchNotificationSettings = async () => {
       if (user?.id) {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('user_settings')
           .select('email_study_reminders, email_task_due_dates')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
         
         if (data) {
           setEmailStudyReminders(data.email_study_reminders ?? true);
           setEmailTaskDueDates(data.email_task_due_dates ?? true);
+        } else if (!data && !error) {
+          // Create user_settings if it doesn't exist
+          await supabase
+            .from('user_settings')
+            .insert({ user_id: user.id });
         }
       }
     };
@@ -74,15 +79,37 @@ const ProfileSettings = () => {
     
     setIsSavingNotifications(true);
     try {
-      const { error } = await supabase
+      // First try to update
+      const { data: existing } = await supabase
         .from('user_settings')
-        .update({
-          email_study_reminders: emailStudyReminders,
-          email_task_due_dates: emailTaskDueDates
-        })
-        .eq('user_id', user.id);
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
       
-      if (error) throw error;
+      if (existing) {
+        // Update existing settings
+        const { error } = await supabase
+          .from('user_settings')
+          .update({
+            email_study_reminders: emailStudyReminders,
+            email_task_due_dates: emailTaskDueDates
+          })
+          .eq('user_id', user.id);
+        
+        if (error) throw error;
+      } else {
+        // Insert new settings
+        const { error } = await supabase
+          .from('user_settings')
+          .insert({
+            user_id: user.id,
+            email_study_reminders: emailStudyReminders,
+            email_task_due_dates: emailTaskDueDates
+          });
+        
+        if (error) throw error;
+      }
+      
       toast.success('Notification preferences saved!');
     } catch (error: any) {
       toast.error(error.message || 'Failed to save notification preferences');
