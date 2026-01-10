@@ -16,10 +16,12 @@ import { FlashcardSystem } from '@/components/dashboard/FlashcardSystem';
 import { ExpenseTracker } from '@/components/dashboard/ExpenseTracker';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { signOut, user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
@@ -28,10 +30,16 @@ const Dashboard = () => {
           <div className="text-sm text-muted-foreground">
             Logged in as <span className="font-medium text-foreground">{user?.email}</span>
           </div>
-          <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
-            <LogOut className="h-4 w-4" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/settings')} className="gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
+            </Button>
+            <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
         
         <WelcomeHeader />
