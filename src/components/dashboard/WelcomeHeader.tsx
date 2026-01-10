@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Calendar, Sparkles, Settings } from 'lucide-react';
+import { Calendar, Sparkles } from 'lucide-react';
 import { ThemeSwitcher } from './ThemeSwitcher';
+import { NotificationsDropdown } from './NotificationsDropdown';
+import { ProfileDropdown } from './ProfileDropdown';
 import { useAuth } from '@/contexts/AuthContext';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 
 export const WelcomeHeader = () => {
-  const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [greeting, setGreeting] = useState('');
   const { profile, user } = useAuth();
@@ -47,43 +45,20 @@ export const WelcomeHeader = () => {
     user?.email?.split('@')[0] || 
     'Student';
 
-  // Get initials for avatar fallback
-  const getInitials = () => {
-    if (displayName) {
-      return displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    }
-    return 'S';
-  };
-
   return (
     <div className="gradient-hero rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-32 sm:w-64 h-32 sm:h-64 gradient-primary opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
       
       {/* Top right controls */}
       <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex items-center gap-2">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => navigate('/profile-settings')}
-          className="h-8 w-8 rounded-full hover:bg-primary/10"
-        >
-          <Settings className="h-4 w-4" />
-        </Button>
+        <NotificationsDropdown />
         <ThemeSwitcher />
       </div>
       
       <div className="relative z-10 pr-10 sm:pr-0">
         <div className="flex items-center gap-4 mb-3">
-          {/* Avatar */}
-          <Avatar 
-            className="h-12 w-12 sm:h-16 sm:w-16 border-2 border-primary/20 cursor-pointer hover:border-primary/40 transition-colors"
-            onClick={() => navigate('/profile-settings')}
-          >
-            <AvatarImage src={profile?.avatar_url || undefined} alt="Profile" />
-            <AvatarFallback className="bg-primary/10 text-primary text-lg sm:text-xl font-semibold">
-              {getInitials()}
-            </AvatarFallback>
-          </Avatar>
+          {/* Profile Dropdown Avatar */}
+          <ProfileDropdown />
           
           <div>
             <div className="flex items-center gap-2 text-primary mb-0.5">
