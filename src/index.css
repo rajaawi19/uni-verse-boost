@@ -393,3 +393,17 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.5);
 }
+
+/* Safe area for mobile devices (iOS notch, home indicator, etc.) */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* Prevent overscroll bounce on pull-to-refresh */
+html, body {
+  overscroll-behavior-y: contain;
+}
