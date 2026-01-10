@@ -49,32 +49,36 @@ const Dashboard = () => {
         
         <StatsOverview />
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <div className="lg:col-span-2">
-            <TaskManager />
-          </div>
-          <div className="space-y-4 sm:space-y-6">
+        {/* Main Grid - Tasks, Timer & AI */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-4 sm:mb-5">
+          <TaskManager />
+          <div className="space-y-4 sm:space-y-5">
             <PomodoroTimer />
-            <FlashcardSystem />
+            <Calculator />
+          </div>
+          <div className="space-y-4 sm:space-y-5">
             <AIStudyAssistant />
+            <FlashcardSystem />
           </div>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <ClassSchedule />
-          <QuickNotes />
+        {/* Study Tools Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-4 sm:mb-5">
           <GPACalculator />
-          <ExpenseTracker />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <Calculator />
+          <QuickNotes />
           <DictionaryWidget />
           <WikipediaSearch />
         </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+
+        {/* Schedule & Tracking */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-4 sm:mb-5">
+          <ClassSchedule />
           <CalendarWidget />
+          <ExpenseTracker />
+        </div>
+        
+        {/* Info & Resources */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
           <WeatherWidget />
           <ResourceLinks />
         </div>
