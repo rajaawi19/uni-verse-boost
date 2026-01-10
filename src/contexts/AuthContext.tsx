@@ -6,6 +6,7 @@ interface Profile {
   id: string;
   user_id: string;
   display_name: string | null;
+  avatar_url: string | null;
 }
 
 interface AuthContextType {
@@ -19,6 +20,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
   updateProfile: (displayName: string) => Promise<{ error: Error | null }>;
+  updateAvatar: (avatarUrl: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -133,6 +135,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error };
   };
 
+  const updateAvatar = (avatarUrl: string) => {
+    setProfile(prev => prev ? { ...prev, avatar_url: avatarUrl } : null);
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -144,7 +150,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signInWithGoogle, 
       signOut, 
       resetPassword,
-      updateProfile 
+      updateProfile,
+      updateAvatar
     }}>
       {children}
     </AuthContext.Provider>
