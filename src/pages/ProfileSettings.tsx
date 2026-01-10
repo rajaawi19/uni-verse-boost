@@ -175,19 +175,20 @@ const ProfileSettings = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-lg">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0">
               <Button 
                 variant="ghost" 
                 size="icon"
                 onClick={() => navigate('/dashboard')}
+                className="h-8 w-8 sm:h-10 sm:w-10 shrink-0"
               >
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
-              <div>
-                <h1 className="text-xl font-bold">Profile Settings</h1>
-                <p className="text-sm text-muted-foreground">Manage your account preferences</p>
+              <div className="min-w-0">
+                <h1 className="text-base sm:text-xl font-bold truncate">Profile Settings</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Manage your account</p>
               </div>
             </div>
             <ThemeSwitcher />
@@ -195,39 +196,40 @@ const ProfileSettings = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-3xl">
-        <div className="space-y-6">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-3xl">
+        <div className="space-y-4 sm:space-y-6">
           {/* Profile Picture Card */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Camera className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <Camera className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 Profile Picture
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 Upload a profile picture to personalize your account
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-6">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                 <div className="relative">
-                  <Avatar className="h-24 w-24 border-4 border-primary/20">
+                  <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-primary/20">
                     <AvatarImage src={avatarUrl || undefined} alt="Profile" />
-                    <AvatarFallback className="text-2xl bg-primary/10 text-primary">
+                    <AvatarFallback className="text-xl sm:text-2xl bg-primary/10 text-primary">
                       {getInitials()}
                     </AvatarFallback>
                   </Avatar>
                   {isUploadingAvatar && (
                     <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-full">
-                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin text-primary" />
                     </div>
                   )}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 text-center sm:text-left">
                   <Button 
                     variant="outline" 
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploadingAvatar}
+                    className="text-sm"
                   >
                     <Camera className="h-4 w-4 mr-2" />
                     {avatarUrl ? 'Change Photo' : 'Upload Photo'}
@@ -249,35 +251,36 @@ const ProfileSettings = () => {
 
           {/* Personal Information Card */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 Personal Information
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 Update your personal details
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="displayName">Display Name</Label>
+                <Label htmlFor="displayName" className="text-sm">Display Name</Label>
                 <Input
                   id="displayName"
                   placeholder="Enter your display name"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
+                  className="text-sm"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email" className="text-sm">Email Address</Label>
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
                   <Input
                     id="email"
                     value={user?.email || ''}
                     disabled
-                    className="bg-muted"
+                    className="bg-muted text-sm"
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -285,12 +288,12 @@ const ProfileSettings = () => {
                 </p>
               </div>
 
-              <Separator className="my-4" />
+              <Separator className="my-3 sm:my-4" />
 
               <Button 
                 onClick={handleSaveProfile} 
                 disabled={isLoading}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto text-sm"
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -304,21 +307,21 @@ const ProfileSettings = () => {
 
           {/* Appearance Card */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Palette className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <Palette className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 Appearance
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 Customize how StudyHub looks for you
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Theme</p>
-                  <p className="text-sm text-muted-foreground">
-                    Choose between light, dark, or custom themes
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="font-medium text-sm">Theme</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Choose your preferred theme
                   </p>
                 </div>
                 <ThemeSwitcher />
@@ -328,26 +331,27 @@ const ProfileSettings = () => {
 
           {/* Account Security Card */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 Account Security
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 Manage your account security settings
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Password</p>
-                  <p className="text-sm text-muted-foreground">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-medium text-sm">Password</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Change your account password
                   </p>
                 </div>
                 <Button 
                   variant="outline"
                   onClick={() => navigate('/forgot-password')}
+                  className="w-full sm:w-auto text-sm"
                 >
                   Reset Password
                 </Button>
@@ -357,47 +361,49 @@ const ProfileSettings = () => {
 
           {/* Notifications Card */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 Email Notifications
               </CardTitle>
-              <CardDescription>
-                Configure how you receive email notifications
+              <CardDescription className="text-xs sm:text-sm">
+                Configure how you receive notifications
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="study-reminders" className="font-medium">
+            <CardContent className="space-y-4 sm:space-y-6">
+              <div className="flex items-start sm:items-center justify-between gap-3">
+                <div className="space-y-0.5 min-w-0">
+                  <Label htmlFor="study-reminders" className="font-medium text-sm">
                     Study Reminders
                   </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Receive email reminders to stay on track with your study schedule
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Stay on track with your study schedule
                   </p>
                 </div>
                 <Switch
                   id="study-reminders"
                   checked={emailStudyReminders}
                   onCheckedChange={setEmailStudyReminders}
+                  className="shrink-0"
                 />
               </div>
               
               <Separator />
               
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="task-due-dates" className="font-medium">
+              <div className="flex items-start sm:items-center justify-between gap-3">
+                <div className="space-y-0.5 min-w-0">
+                  <Label htmlFor="task-due-dates" className="font-medium text-sm">
                     Task Due Date Alerts
                   </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Get notified when tasks are approaching their due dates
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Get notified for upcoming deadlines
                   </p>
                 </div>
                 <Switch
                   id="task-due-dates"
                   checked={emailTaskDueDates}
                   onCheckedChange={setEmailTaskDueDates}
+                  className="shrink-0"
                 />
               </div>
               
@@ -406,14 +412,14 @@ const ProfileSettings = () => {
               <Button 
                 onClick={handleSaveNotifications} 
                 disabled={isSavingNotifications}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto text-sm"
               >
                 {isSavingNotifications ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
                   <Save className="h-4 w-4 mr-2" />
                 )}
-                Save Notification Preferences
+                Save Preferences
               </Button>
             </CardContent>
           </Card>
