@@ -25,7 +25,7 @@ import {
 
 const ProfileSettings = () => {
   const navigate = useNavigate();
-  const { user, profile, updateProfile } = useAuth();
+  const { user, profile, updateProfile, updateAvatar } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
@@ -43,23 +43,12 @@ const ProfileSettings = () => {
     }
   }, [profile?.display_name]);
 
-  // Fetch current avatar URL
+  // Sync avatar from profile context
   useEffect(() => {
-    const fetchAvatar = async () => {
-      if (user?.id) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('avatar_url')
-          .eq('user_id', user.id)
-          .single();
-        
-        if (data?.avatar_url) {
-          setAvatarUrl(data.avatar_url);
-        }
-      }
-    };
-    fetchAvatar();
-  }, [user?.id]);
+    if (profile?.avatar_url) {
+      setAvatarUrl(profile.avatar_url);
+    }
+  }, [profile?.avatar_url]);
 
   // Fetch notification settings
   useEffect(() => {
@@ -147,7 +136,9 @@ const ProfileSettings = () => {
 
       if (updateError) throw updateError;
 
-      setAvatarUrl(publicUrl + '?t=' + Date.now()); // Add timestamp to force refresh
+      const newAvatarUrl = publicUrl + '?t=' + Date.now();
+      setAvatarUrl(newAvatarUrl);
+      updateAvatar(newAvatarUrl); // Sync with context
       toast.success('Avatar updated successfully!');
     } catch (error: any) {
       toast.error(error.message || 'Failed to upload avatar');
