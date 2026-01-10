@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,14 +32,21 @@ const ProfileSettings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
+  // Update display name when profile loads
+  useEffect(() => {
+    if (profile?.display_name) {
+      setDisplayName(profile.display_name);
+    }
+  }, [profile?.display_name]);
+
   // Fetch current avatar URL
-  useState(() => {
+  useEffect(() => {
     const fetchAvatar = async () => {
-      if (profile?.id) {
+      if (user?.id) {
         const { data } = await supabase
           .from('profiles')
           .select('avatar_url')
-          .eq('user_id', user?.id)
+          .eq('user_id', user.id)
           .single();
         
         if (data?.avatar_url) {
@@ -48,7 +55,7 @@ const ProfileSettings = () => {
       }
     };
     fetchAvatar();
-  });
+  }, [user?.id]);
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
