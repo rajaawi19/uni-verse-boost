@@ -14,7 +14,12 @@ import {
   TrendingUp,
   Users,
   ChevronRight,
-  Star
+  Star,
+  Mail,
+  Phone,
+  Linkedin,
+  Github,
+  Globe
 } from 'lucide-react';
 
 const Landing = () => {
@@ -191,15 +196,92 @@ const Landing = () => {
         </section>
 
         {/* Footer */}
-        <footer className="container mx-auto px-4 py-8 border-t border-border/50">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <GraduationCap className="h-5 w-5 text-primary" />
-              <span className="font-semibold">StudyHub</span>
+        <footer className="container mx-auto px-4 py-12 border-t border-border/50">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              {/* Brand Section */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <GraduationCap className="h-6 w-6 text-primary" />
+                  <span className="text-xl font-bold">StudyHub</span>
+                </div>
+                <p className="text-muted-foreground mb-4">
+                  Your all-in-one student productivity platform. Built with passion for learners everywhere.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Made with 💜 for students everywhere
+                </p>
+              </div>
+
+              {/* Developer Contact Section */}
+              <div>
+                <h4 className="font-semibold mb-4">Developer Contact</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Users className="h-4 w-4 text-primary" />
+                    </div>
+                    <span>Abhishek Prasad Verma</span>
+                  </div>
+                  <a 
+                    href="mailto:vermaawishek1234@gmail.com" 
+                    className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Mail className="h-4 w-4 text-primary" />
+                    </div>
+                    vermaawishek1234@gmail.com
+                  </a>
+                  <a 
+                    href="tel:+919507277348" 
+                    className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Phone className="h-4 w-4 text-primary" />
+                    </div>
+                    +91-9507277348
+                  </a>
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Made with 💜 for students everywhere
-            </p>
+
+            {/* Social Links */}
+            <div className="flex flex-wrap items-center justify-center gap-4 py-6 border-t border-border/50">
+              <a 
+                href="https://www.linkedin.com/in/abhishek-prasad-verma-4a33482a3/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card/50 border border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all text-sm"
+              >
+                <Linkedin className="h-4 w-4 text-primary" />
+                LinkedIn
+              </a>
+              <a 
+                href="https://github.com/abhishekverma19" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card/50 border border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all text-sm"
+              >
+                <Github className="h-4 w-4 text-primary" />
+                GitHub
+              </a>
+              <a 
+                href="https://dev-showcase-studio-15.lovable.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card/50 border border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all text-sm"
+              >
+                <Globe className="h-4 w-4 text-primary" />
+                Portfolio
+              </a>
+            </div>
+
+            {/* Copyright */}
+            <div className="text-center pt-6 border-t border-border/50">
+              <p className="text-sm text-muted-foreground">
+                © {new Date().getFullYear()} StudyHub. All rights reserved.
+              </p>
+            </div>
           </div>
         </footer>
       </main>
