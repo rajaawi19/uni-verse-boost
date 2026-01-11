@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -26,7 +26,7 @@ const themes: ThemeOption[] = [
   { value: 'system', label: 'System', icon: <Monitor className="h-4 w-4" />, description: 'Match your OS' },
 ];
 
-export const ThemeSwitcher = forwardRef<HTMLButtonElement>((_, ref) => {
+export const ThemeSwitcher = () => {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('theme') as Theme) || 'light';
@@ -75,7 +75,7 @@ export const ThemeSwitcher = forwardRef<HTMLButtonElement>((_, ref) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button ref={ref} variant="outline" size="icon" className="relative">
+        <Button variant="outline" size="icon" className="relative">
           <Palette className="h-4 w-4" />
           <span className="sr-only">Toggle theme</span>
         </Button>
@@ -104,6 +104,4 @@ export const ThemeSwitcher = forwardRef<HTMLButtonElement>((_, ref) => {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-});
-
-ThemeSwitcher.displayName = 'ThemeSwitcher';
+};
