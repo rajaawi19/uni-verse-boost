@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '@/components/dashboard/ThemeSwitcher';
@@ -22,7 +22,7 @@ import {
   Globe
 } from 'lucide-react';
 
-const Landing = () => {
+const Landing = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
@@ -54,7 +54,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
+    <div ref={ref} className="min-h-screen bg-background overflow-hidden">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-pulse-slow" />
@@ -287,6 +287,8 @@ const Landing = () => {
       </main>
     </div>
   );
-};
+});
+
+Landing.displayName = 'Landing';
 
 export default Landing;
