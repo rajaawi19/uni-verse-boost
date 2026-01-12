@@ -145,8 +145,8 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
       
       if (error) throw error;
       setFavorites(data || []);
-    } catch (err) {
-      console.error('Failed to fetch favorites:', err);
+    } catch {
+      // Silently fail - favorites will be empty
     }
   }, [user]);
 
@@ -190,8 +190,8 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
             );
             allStations.push(...validStations);
           }
-        } catch (err) {
-          console.log(`Failed to fetch from ${apiUrl}:`, err);
+        } catch {
+          // Silently continue to next tag
         }
       }
       
@@ -227,8 +227,7 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
       } else {
         setError('No stations found');
       }
-    } catch (err) {
-      console.error('Failed to fetch stations:', err);
+    } catch {
       setError('Failed to load stations');
     } finally {
       setIsFetchingStations(false);
@@ -253,8 +252,7 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
       setError(null);
     };
 
-    const handleError = (e: Event) => {
-      console.log('Audio error:', e);
+    const handleError = () => {
       setIsLoading(false);
       setIsPlaying(false);
       setError('Stream unavailable');
@@ -331,7 +329,6 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
       setIsPlaying(true);
       setIsLoading(false);
     } catch (err) {
-      console.log('Play error:', err);
       setIsLoading(false);
       if (err instanceof Error) {
         if (err.name === 'NotSupportedError') {
@@ -443,8 +440,7 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
         
         setFavorites(prev => prev.filter(f => f.id !== existing.id));
         toast.success('Removed from favorites');
-      } catch (err) {
-        console.error('Failed to remove favorite:', err);
+      } catch {
         toast.error('Failed to remove favorite');
       }
     } else {
@@ -469,8 +465,7 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
         
         setFavorites(prev => [data, ...prev]);
         toast.success('Added to favorites');
-      } catch (err) {
-        console.error('Failed to add favorite:', err);
+      } catch {
         toast.error('Failed to add favorite');
       }
     }
