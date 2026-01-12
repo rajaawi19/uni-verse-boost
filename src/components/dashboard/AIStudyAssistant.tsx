@@ -141,7 +141,8 @@ export const AIStudyAssistant = () => {
         }
       }
     } catch (error) {
-      console.error('Chat error:', error);
+      // Error logged only in development
+      if (import.meta.env.DEV) console.error('Chat error:', error);
       toast.error('Failed to connect to AI assistant');
     } finally {
       setIsLoading(false);

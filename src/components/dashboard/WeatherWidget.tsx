@@ -49,9 +49,8 @@ export const WeatherWidget = () => {
         city: area.areaName[0].value,
         icon: current.weatherCode,
       });
-    } catch (err) {
+    } catch {
       setError('Unable to fetch weather');
-      console.error('Weather fetch error:', err);
     } finally {
       setLoading(false);
     }
