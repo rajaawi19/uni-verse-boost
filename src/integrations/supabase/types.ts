@@ -44,6 +44,45 @@ export type Database = {
         }
         Relationships: []
       }
+      favorite_stations: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          station_bitrate: number | null
+          station_country: string | null
+          station_favicon: string | null
+          station_name: string
+          station_url: string
+          station_uuid: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          station_bitrate?: number | null
+          station_country?: string | null
+          station_favicon?: string | null
+          station_name: string
+          station_url: string
+          station_uuid: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          station_bitrate?: number | null
+          station_country?: string | null
+          station_favicon?: string | null
+          station_name?: string
+          station_url?: string
+          station_uuid?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       flashcard_decks: {
         Row: {
           created_at: string
