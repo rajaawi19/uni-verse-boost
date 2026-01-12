@@ -29,162 +29,141 @@ interface SoundTrack {
   category: 'lofi' | 'nature' | 'ambient' | 'focus' | 'jazz';
 }
 
-// Curated collection of free, high-quality audio streams and sounds
+// Reliable free audio sources - using direct MP3 files that work cross-origin
 const SOUND_TRACKS: SoundTrack[] = [
   // === LO-FI & CHILL BEATS ===
   {
-    id: 'lofi-girl',
-    name: 'Lofi Girl Radio',
+    id: 'lofi-chill',
+    name: 'Lofi Chill Vibes',
     icon: <Music className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/0r0xa792kwzuv',
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     category: 'lofi'
   },
   {
-    id: 'chillhop',
-    name: 'Chillhop Radio',
-    icon: <Coffee className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
-    category: 'lofi'
-  },
-  {
-    id: 'lofi-sleep',
-    name: 'Lofi Sleep',
-    icon: <Music className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/yan1qi4j2uhvv',
-    category: 'lofi'
-  },
-  {
-    id: 'synthwave',
-    name: 'Synthwave FM',
-    icon: <Music className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/pku8szeqpebuv',
-    category: 'lofi'
-  },
-  {
-    id: 'study-beats',
+    id: 'lofi-beats',
     name: 'Study Beats',
     icon: <Music className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/hvnh9f57mfhvv',
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+    category: 'lofi'
+  },
+  {
+    id: 'lofi-dream',
+    name: 'Dreamy Lofi',
+    icon: <Coffee className="w-4 h-4" />,
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+    category: 'lofi'
+  },
+  {
+    id: 'lofi-night',
+    name: 'Night Study',
+    icon: <Music className="w-4 h-4" />,
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
     category: 'lofi'
   },
   
   // === JAZZ & COFFEEHOUSE ===
   {
+    id: 'jazz-smooth',
+    name: 'Smooth Jazz',
+    icon: <Coffee className="w-4 h-4" />,
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+    category: 'jazz'
+  },
+  {
     id: 'jazz-cafe',
     name: 'Jazz Café',
     icon: <Coffee className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/y6k7ypxkn68uv',
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
     category: 'jazz'
   },
   {
-    id: 'smooth-jazz',
-    name: 'Smooth Jazz',
+    id: 'jazz-mellow',
+    name: 'Mellow Jazz',
     icon: <Coffee className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/gftkq8s3qg8uv',
-    category: 'jazz'
-  },
-  {
-    id: 'bossa-nova',
-    name: 'Bossa Nova',
-    icon: <Coffee className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/p9d1r2z5yxhvv',
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
     category: 'jazz'
   },
   
   // === FOCUS & CONCENTRATION ===
   {
-    id: 'deep-focus',
+    id: 'focus-deep',
     name: 'Deep Focus',
     icon: <Music className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/0h9s7uxkn68uv',
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
     category: 'focus'
   },
   {
-    id: 'ambient-focus',
+    id: 'focus-ambient',
     name: 'Ambient Focus',
     icon: <Music className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/ddf3j3efp18uv',
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3',
     category: 'focus'
   },
   {
-    id: 'classical-study',
-    name: 'Classical Study',
+    id: 'focus-zen',
+    name: 'Zen Concentration',
     icon: <Music className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/mhkwg8ufp18uv',
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3',
     category: 'focus'
   },
   
-  // === NATURE SOUNDS ===
+  // === NATURE SOUNDS (using reliable freesound samples) ===
   {
     id: 'rain',
     name: 'Rain Sounds',
     icon: <CloudRain className="w-4 h-4" />,
-    url: 'https://cdn.pixabay.com/audio/2022/05/13/audio_257112c589.mp3',
-    category: 'nature'
-  },
-  {
-    id: 'thunderstorm',
-    name: 'Thunderstorm',
-    icon: <CloudRain className="w-4 h-4" />,
-    url: 'https://cdn.pixabay.com/audio/2022/10/30/audio_7835d05c61.mp3',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/4/48/Rain_moderate.ogg',
     category: 'nature'
   },
   {
     id: 'ocean',
     name: 'Ocean Waves',
     icon: <Waves className="w-4 h-4" />,
-    url: 'https://cdn.pixabay.com/audio/2024/11/15/audio_d8fbfc9f46.mp3',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/9/92/Ocean_Waves.ogg',
     category: 'nature'
   },
   {
     id: 'forest',
     name: 'Forest Birds',
     icon: <Bird className="w-4 h-4" />,
-    url: 'https://cdn.pixabay.com/audio/2022/03/12/audio_b4f7e5a4bc.mp3',
-    category: 'nature'
-  },
-  {
-    id: 'river',
-    name: 'River Stream',
-    icon: <Waves className="w-4 h-4" />,
-    url: 'https://cdn.pixabay.com/audio/2022/02/22/audio_d1f1f54983.mp3',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/4/40/Bird_singing.ogg',
     category: 'nature'
   },
   {
     id: 'wind',
-    name: 'Wind',
+    name: 'Wind Ambience',
     icon: <Wind className="w-4 h-4" />,
-    url: 'https://cdn.pixabay.com/audio/2022/03/24/audio_b83e9f7d3b.mp3',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/7/77/Wind_sound.ogg',
     category: 'nature'
   },
   
   // === AMBIENT & WHITE NOISE ===
   {
-    id: 'fireplace',
-    name: 'Fireplace',
-    icon: <Flame className="w-4 h-4" />,
-    url: 'https://cdn.pixabay.com/audio/2024/03/18/audio_a3dfd5deaf.mp3',
+    id: 'ambient-space',
+    name: 'Space Ambient',
+    icon: <Waves className="w-4 h-4" />,
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3',
     category: 'ambient'
   },
   {
-    id: 'forest-night',
-    name: 'Forest Night',
+    id: 'ambient-drone',
+    name: 'Ambient Drone',
     icon: <TreePine className="w-4 h-4" />,
-    url: 'https://cdn.pixabay.com/audio/2022/08/02/audio_54ca0ffa52.mp3',
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3',
     category: 'ambient'
   },
   {
-    id: 'cafe-ambience',
+    id: 'fireplace',
+    name: 'Cozy Fireplace',
+    icon: <Flame className="w-4 h-4" />,
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3',
+    category: 'ambient'
+  },
+  {
+    id: 'cafe',
     name: 'Café Ambience',
     icon: <Coffee className="w-4 h-4" />,
-    url: 'https://cdn.pixabay.com/audio/2022/03/09/audio_c3ad1ded5e.mp3',
-    category: 'ambient'
-  },
-  {
-    id: 'white-noise',
-    name: 'White Noise',
-    icon: <Wind className="w-4 h-4" />,
-    url: 'https://cdn.pixabay.com/audio/2023/05/11/audio_6f82bc62f1.mp3',
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3',
     category: 'ambient'
   }
 ];
@@ -215,35 +194,54 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
   
   const filteredTracks = SOUND_TRACKS.filter(t => t.category === selectedCategory);
 
-  // Initialize audio element
+  // Initialize audio element with better error handling
   useEffect(() => {
     const audio = new Audio();
     audio.loop = true;
-    audio.crossOrigin = 'anonymous';
-    audio.preload = 'none';
+    audio.preload = 'auto';
     audioRef.current = audio;
 
-    audio.addEventListener('canplaythrough', () => {
+    const handleCanPlay = () => {
       setIsLoading(false);
       setError(null);
-    });
+    };
 
-    audio.addEventListener('error', () => {
+    const handleError = () => {
       setIsLoading(false);
       setIsPlaying(false);
-      setError('Unable to load audio');
-    });
+      setError('Audio unavailable - try another track');
+    };
 
-    audio.addEventListener('waiting', () => {
+    const handleWaiting = () => {
       setIsLoading(true);
-    });
+    };
 
-    audio.addEventListener('playing', () => {
+    const handlePlaying = () => {
       setIsLoading(false);
+      setError(null);
       setIsPlaying(true);
-    });
+    };
+
+    const handleEnded = () => {
+      // For non-looping tracks, restart
+      if (audio.loop) {
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+      }
+    };
+
+    audio.addEventListener('canplaythrough', handleCanPlay);
+    audio.addEventListener('error', handleError);
+    audio.addEventListener('waiting', handleWaiting);
+    audio.addEventListener('playing', handlePlaying);
+    audio.addEventListener('ended', handleEnded);
 
     return () => {
+      audio.removeEventListener('canplaythrough', handleCanPlay);
+      audio.removeEventListener('error', handleError);
+      audio.removeEventListener('waiting', handleWaiting);
+      audio.removeEventListener('playing', handlePlaying);
+      audio.removeEventListener('ended', handleEnded);
       audio.pause();
       audio.src = '';
     };
@@ -273,16 +271,22 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
     setIsLoading(true);
 
     try {
-      if (!audioRef.current.src || audioRef.current.src !== currentTrack.url) {
+      // Set source if not set or different
+      if (!audioRef.current.src || !audioRef.current.src.includes(currentTrack.url.split('/').pop() || '')) {
         audioRef.current.src = currentTrack.url;
+        audioRef.current.load();
       }
+      
+      // Small delay to ensure audio is ready
+      await new Promise(resolve => setTimeout(resolve, 100));
       await audioRef.current.play();
       setIsPlaying(true);
+      setIsLoading(false);
     } catch (err) {
-      console.log('Autoplay prevented or error:', err);
+      console.log('Play error:', err);
       setIsLoading(false);
       if (err instanceof Error && err.name !== 'AbortError') {
-        setError('Click to play');
+        setError('Tap play to start');
       }
     }
   };
@@ -307,24 +311,39 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
     setIsMuted(!isMuted);
   };
 
-  const selectTrack = async (track: SoundTrack) => {
+  const selectTrack = (track: SoundTrack) => {
     const wasPlaying = isPlaying;
-    handlePause();
+    
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    
+    setIsPlaying(false);
     setCurrentTrack(track);
     setError(null);
     
-    if (audioRef.current) {
-      audioRef.current.src = track.url;
-      if (wasPlaying) {
-        setTimeout(() => handlePlay(), 100);
-      }
+    if (wasPlaying) {
+      // Use setTimeout to allow state update first
+      setTimeout(() => {
+        if (audioRef.current) {
+          audioRef.current.src = track.url;
+          audioRef.current.load();
+          audioRef.current.play().then(() => {
+            setIsPlaying(true);
+          }).catch(() => {
+            setError('Tap play to start');
+          });
+        }
+      }, 150);
     }
   };
 
   const nextTrack = () => {
-    const currentIndex = SOUND_TRACKS.findIndex(t => t.id === currentTrack.id);
-    const nextIndex = (currentIndex + 1) % SOUND_TRACKS.length;
-    selectTrack(SOUND_TRACKS[nextIndex]);
+    const categoryTracks = SOUND_TRACKS.filter(t => t.category === selectedCategory);
+    const currentIndex = categoryTracks.findIndex(t => t.id === currentTrack.id);
+    const nextIndex = (currentIndex + 1) % categoryTracks.length;
+    selectTrack(categoryTracks[nextIndex >= 0 ? nextIndex : 0]);
   };
 
   const getCategoryColor = (category: string) => {
