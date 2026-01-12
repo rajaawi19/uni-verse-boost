@@ -35,7 +35,6 @@ const Dashboard = () => {
   });
 
   const handleRefresh = useCallback(async () => {
-    // Simulate a refresh delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     setRefreshKey(prev => prev + 1);
     toast.success('Dashboard refreshed!');
@@ -49,7 +48,8 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background pb-20 sm:pb-0">
       <PullToRefresh onRefresh={handleRefresh}>
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
             <div className="text-xs sm:text-sm text-muted-foreground truncate max-w-[200px] sm:max-w-none">
               Logged in as <span className="font-medium text-foreground">{user?.email}</span>
             </div>
@@ -67,46 +67,85 @@ const Dashboard = () => {
           
           <WelcomeHeader />
           
-          <QuoteWidget key={`quote-${refreshKey}`} />
-          
-          <StatsOverview key={`stats-${refreshKey}`} />
-          
-          {/* Row 1: Core Tools - Tasks, Timer, Music, Calculator */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4" data-section="tasks">
-            <div className="sm:col-span-2 lg:col-span-1">
-              <TaskManager key={`tasks-${refreshKey}`} />
-            </div>
-            <div data-section="timer">
-              <PomodoroTimer onStateChange={handlePomodoroStateChange} />
-            </div>
-            <FocusMusicPlayer 
-              isPomodoroRunning={pomodoroState.isRunning} 
-              pomodoroMode={pomodoroState.mode} 
-            />
-            <Calculator />
+          {/* Quick Stats & Motivation */}
+          <div className="mb-6">
+            <QuoteWidget key={`quote-${refreshKey}`} />
           </div>
           
-          {/* Row 2: Study Helpers */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4" data-section="study">
-            <AIStudyAssistant />
-            <FlashcardSystem key={`flashcards-${refreshKey}`} />
-            <GPACalculator />
-            <QuickNotes key={`notes-${refreshKey}`} />
+          <div className="mb-6">
+            <StatsOverview key={`stats-${refreshKey}`} />
           </div>
 
-          {/* Row 3: Reference & Schedule */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-            <ClassSchedule />
-            <DictionaryWidget />
-            <WikipediaSearch />
+          {/* Section: Focus Zone */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+              Focus Zone
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="lg:row-span-2" data-section="timer">
+                <PomodoroTimer onStateChange={handlePomodoroStateChange} />
+              </div>
+              <FocusMusicPlayer 
+                isPomodoroRunning={pomodoroState.isRunning} 
+                pomodoroMode={pomodoroState.mode} 
+              />
+              <div className="md:col-span-1">
+                <TaskManager key={`tasks-${refreshKey}`} />
+              </div>
+            </div>
           </div>
-          
-          {/* Row 4: Calendar, Expense & Resources */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <CalendarWidget />
-            <ExpenseTracker key={`expenses-${refreshKey}`} />
-            <WeatherWidget key={`weather-${refreshKey}`} />
-            <ResourceLinks />
+
+          {/* Section: Study Tools */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-500"></span>
+              Study Tools
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <AIStudyAssistant />
+              <FlashcardSystem key={`flashcards-${refreshKey}`} />
+              <QuickNotes key={`notes-${refreshKey}`} />
+            </div>
+          </div>
+
+          {/* Section: Academics */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+              Academics
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <GPACalculator />
+              <ClassSchedule />
+              <CalendarWidget />
+              <Calculator />
+            </div>
+          </div>
+
+          {/* Section: Research & Reference */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+              Research & Reference
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <DictionaryWidget />
+              <WikipediaSearch />
+              <ResourceLinks />
+            </div>
+          </div>
+
+          {/* Section: Life Management */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+              Life Management
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ExpenseTracker key={`expenses-${refreshKey}`} />
+              <WeatherWidget key={`weather-${refreshKey}`} />
+            </div>
           </div>
           
           <footer className="text-center text-muted-foreground text-xs sm:text-sm mt-8 pb-6">
@@ -115,7 +154,6 @@ const Dashboard = () => {
         </div>
       </PullToRefresh>
       
-      {/* Mobile Bottom Navigation */}
       <MobileBottomNav />
     </div>
   );
