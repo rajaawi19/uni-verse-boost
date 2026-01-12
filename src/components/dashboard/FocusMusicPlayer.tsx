@@ -26,30 +26,107 @@ interface SoundTrack {
   name: string;
   icon: React.ReactNode;
   url: string;
-  category: 'lofi' | 'nature' | 'ambient';
+  category: 'lofi' | 'nature' | 'ambient' | 'focus' | 'jazz';
 }
 
-// Using free, working audio sources
+// Curated collection of free, high-quality audio streams and sounds
 const SOUND_TRACKS: SoundTrack[] = [
+  // === LO-FI & CHILL BEATS ===
   {
-    id: 'lofi-hiphop',
-    name: 'Lo-Fi Hip Hop',
+    id: 'lofi-girl',
+    name: 'Lofi Girl Radio',
     icon: <Music className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/0r0xa792kwzuv', // Lofi Girl radio stream
+    url: 'https://stream.zeno.fm/0r0xa792kwzuv',
     category: 'lofi'
   },
   {
     id: 'chillhop',
-    name: 'Chillhop',
+    name: 'Chillhop Radio',
     icon: <Coffee className="w-4 h-4" />,
-    url: 'https://stream.zeno.fm/f3wvbbqmdg8uv', // Chillhop radio stream
+    url: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
     category: 'lofi'
   },
+  {
+    id: 'lofi-sleep',
+    name: 'Lofi Sleep',
+    icon: <Music className="w-4 h-4" />,
+    url: 'https://stream.zeno.fm/yan1qi4j2uhvv',
+    category: 'lofi'
+  },
+  {
+    id: 'synthwave',
+    name: 'Synthwave FM',
+    icon: <Music className="w-4 h-4" />,
+    url: 'https://stream.zeno.fm/pku8szeqpebuv',
+    category: 'lofi'
+  },
+  {
+    id: 'study-beats',
+    name: 'Study Beats',
+    icon: <Music className="w-4 h-4" />,
+    url: 'https://stream.zeno.fm/hvnh9f57mfhvv',
+    category: 'lofi'
+  },
+  
+  // === JAZZ & COFFEEHOUSE ===
+  {
+    id: 'jazz-cafe',
+    name: 'Jazz Café',
+    icon: <Coffee className="w-4 h-4" />,
+    url: 'https://stream.zeno.fm/y6k7ypxkn68uv',
+    category: 'jazz'
+  },
+  {
+    id: 'smooth-jazz',
+    name: 'Smooth Jazz',
+    icon: <Coffee className="w-4 h-4" />,
+    url: 'https://stream.zeno.fm/gftkq8s3qg8uv',
+    category: 'jazz'
+  },
+  {
+    id: 'bossa-nova',
+    name: 'Bossa Nova',
+    icon: <Coffee className="w-4 h-4" />,
+    url: 'https://stream.zeno.fm/p9d1r2z5yxhvv',
+    category: 'jazz'
+  },
+  
+  // === FOCUS & CONCENTRATION ===
+  {
+    id: 'deep-focus',
+    name: 'Deep Focus',
+    icon: <Music className="w-4 h-4" />,
+    url: 'https://stream.zeno.fm/0h9s7uxkn68uv',
+    category: 'focus'
+  },
+  {
+    id: 'ambient-focus',
+    name: 'Ambient Focus',
+    icon: <Music className="w-4 h-4" />,
+    url: 'https://stream.zeno.fm/ddf3j3efp18uv',
+    category: 'focus'
+  },
+  {
+    id: 'classical-study',
+    name: 'Classical Study',
+    icon: <Music className="w-4 h-4" />,
+    url: 'https://stream.zeno.fm/mhkwg8ufp18uv',
+    category: 'focus'
+  },
+  
+  // === NATURE SOUNDS ===
   {
     id: 'rain',
     name: 'Rain Sounds',
     icon: <CloudRain className="w-4 h-4" />,
     url: 'https://cdn.pixabay.com/audio/2022/05/13/audio_257112c589.mp3',
+    category: 'nature'
+  },
+  {
+    id: 'thunderstorm',
+    name: 'Thunderstorm',
+    icon: <CloudRain className="w-4 h-4" />,
+    url: 'https://cdn.pixabay.com/audio/2022/10/30/audio_7835d05c61.mp3',
     category: 'nature'
   },
   {
@@ -67,12 +144,21 @@ const SOUND_TRACKS: SoundTrack[] = [
     category: 'nature'
   },
   {
+    id: 'river',
+    name: 'River Stream',
+    icon: <Waves className="w-4 h-4" />,
+    url: 'https://cdn.pixabay.com/audio/2022/02/22/audio_d1f1f54983.mp3',
+    category: 'nature'
+  },
+  {
     id: 'wind',
     name: 'Wind',
     icon: <Wind className="w-4 h-4" />,
     url: 'https://cdn.pixabay.com/audio/2022/03/24/audio_b83e9f7d3b.mp3',
-    category: 'ambient'
+    category: 'nature'
   },
+  
+  // === AMBIENT & WHITE NOISE ===
   {
     id: 'fireplace',
     name: 'Fireplace',
@@ -81,12 +167,34 @@ const SOUND_TRACKS: SoundTrack[] = [
     category: 'ambient'
   },
   {
-    id: 'forest-ambient',
+    id: 'forest-night',
     name: 'Forest Night',
     icon: <TreePine className="w-4 h-4" />,
     url: 'https://cdn.pixabay.com/audio/2022/08/02/audio_54ca0ffa52.mp3',
     category: 'ambient'
+  },
+  {
+    id: 'cafe-ambience',
+    name: 'Café Ambience',
+    icon: <Coffee className="w-4 h-4" />,
+    url: 'https://cdn.pixabay.com/audio/2022/03/09/audio_c3ad1ded5e.mp3',
+    category: 'ambient'
+  },
+  {
+    id: 'white-noise',
+    name: 'White Noise',
+    icon: <Wind className="w-4 h-4" />,
+    url: 'https://cdn.pixabay.com/audio/2023/05/11/audio_6f82bc62f1.mp3',
+    category: 'ambient'
   }
+];
+
+const CATEGORIES = [
+  { id: 'lofi', label: 'Lo-Fi', color: 'from-purple-500 to-pink-500' },
+  { id: 'jazz', label: 'Jazz', color: 'from-amber-500 to-orange-500' },
+  { id: 'focus', label: 'Focus', color: 'from-blue-500 to-cyan-500' },
+  { id: 'nature', label: 'Nature', color: 'from-green-500 to-emerald-500' },
+  { id: 'ambient', label: 'Ambient', color: 'from-slate-500 to-gray-600' }
 ];
 
 interface FocusMusicPlayerProps {
@@ -102,7 +210,10 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
   const [currentTrack, setCurrentTrack] = useState<SoundTrack>(SOUND_TRACKS[0]);
   const [autoSync, setAutoSync] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('lofi');
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  const filteredTracks = SOUND_TRACKS.filter(t => t.category === selectedCategory);
 
   // Initialize audio element
   useEffect(() => {
@@ -218,11 +329,18 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'lofi': return 'bg-primary/20 text-primary border-primary/30';
+      case 'lofi': return 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30';
+      case 'jazz': return 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30';
+      case 'focus': return 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30';
       case 'nature': return 'bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30';
-      case 'ambient': return 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/30';
+      case 'ambient': return 'bg-slate-500/20 text-slate-600 dark:text-slate-400 border-slate-500/30';
       default: return 'bg-muted text-muted-foreground';
     }
+  };
+
+  const getCategoryGradient = (categoryId: string) => {
+    const cat = CATEGORIES.find(c => c.id === categoryId);
+    return cat ? `bg-gradient-to-r ${cat.color}` : '';
   };
 
   return (
@@ -339,25 +457,62 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
           <Volume2 className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
         </div>
 
+        {/* Category Tabs */}
+        <div className="space-y-3">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            Categories
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {CATEGORIES.map((cat) => (
+              <Button
+                key={cat.id}
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedCategory(cat.id)}
+                className={cn(
+                  "text-xs h-7 px-3",
+                  selectedCategory === cat.id && `${getCategoryGradient(cat.id)} text-white border-0`
+                )}
+              >
+                {cat.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
         {/* Track Selection */}
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Select Sound
+            {CATEGORIES.find(c => c.id === selectedCategory)?.label} Tracks ({filteredTracks.length})
           </p>
-          <div className="grid grid-cols-2 gap-1.5">
-            {SOUND_TRACKS.map((track) => (
+          <div className="grid grid-cols-1 gap-1.5 max-h-40 overflow-y-auto pr-1">
+            {filteredTracks.map((track) => (
               <Button
                 key={track.id}
                 variant="outline"
                 size="sm"
                 onClick={() => selectTrack(track)}
                 className={cn(
-                  "h-auto py-1.5 px-2 justify-start gap-1.5 text-xs",
+                  "h-auto py-2 px-3 justify-start gap-2 text-xs",
                   currentTrack.id === track.id && getCategoryColor(track.category)
                 )}
               >
                 {track.icon}
                 <span className="truncate">{track.name}</span>
+                {currentTrack.id === track.id && isPlaying && (
+                  <div className="ml-auto flex gap-0.5 items-end h-3">
+                    {[...Array(3)].map((_, i) => (
+                      <div 
+                        key={i}
+                        className="w-0.5 bg-current rounded-full animate-pulse"
+                        style={{ 
+                          height: `${4 + (i % 3) * 3}px`,
+                          animationDelay: `${i * 0.15}s`
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
               </Button>
             ))}
           </div>
