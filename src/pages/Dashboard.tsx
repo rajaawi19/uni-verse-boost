@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { WelcomeHeader } from '@/components/dashboard/WelcomeHeader';
 import { StatsOverview } from '@/components/dashboard/StatsOverview';
 import { TaskManager } from '@/components/dashboard/TaskManager';
-import { PomodoroTimer } from '@/components/dashboard/PomodoroTimer';
+import { PomodoroTimer, TimerMode } from '@/components/dashboard/PomodoroTimer';
 import { QuickNotes } from '@/components/dashboard/QuickNotes';
 import { WeatherWidget } from '@/components/dashboard/WeatherWidget';
 import { QuoteWidget } from '@/components/dashboard/QuoteWidget';
@@ -16,6 +16,7 @@ import { WikipediaSearch } from '@/components/dashboard/WikipediaSearch';
 import { FlashcardSystem } from '@/components/dashboard/FlashcardSystem';
 import { ExpenseTracker } from '@/components/dashboard/ExpenseTracker';
 import { Calculator } from '@/components/dashboard/Calculator';
+import { FocusMusicPlayer } from '@/components/dashboard/FocusMusicPlayer';
 import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav';
 import { PullToRefresh } from '@/components/dashboard/PullToRefresh';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,12 +29,20 @@ const Dashboard = () => {
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const [refreshKey, setRefreshKey] = useState(0);
+  const [pomodoroState, setPomodoroState] = useState<{ isRunning: boolean; mode: TimerMode }>({
+    isRunning: false,
+    mode: 'focus'
+  });
 
   const handleRefresh = useCallback(async () => {
     // Simulate a refresh delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     setRefreshKey(prev => prev + 1);
     toast.success('Dashboard refreshed!');
+  }, []);
+
+  const handlePomodoroStateChange = useCallback((isRunning: boolean, mode: TimerMode) => {
+    setPomodoroState({ isRunning, mode });
   }, []);
 
   return (
@@ -62,14 +71,18 @@ const Dashboard = () => {
           
           <StatsOverview key={`stats-${refreshKey}`} />
           
-          {/* Row 1: Core Tools - Tasks, Timer, Calculator */}
+          {/* Row 1: Core Tools - Tasks, Timer, Music, Calculator */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4" data-section="tasks">
-            <div className="sm:col-span-2 lg:col-span-2">
+            <div className="sm:col-span-2 lg:col-span-1">
               <TaskManager key={`tasks-${refreshKey}`} />
             </div>
             <div data-section="timer">
-              <PomodoroTimer />
+              <PomodoroTimer onStateChange={handlePomodoroStateChange} />
             </div>
+            <FocusMusicPlayer 
+              isPomodoroRunning={pomodoroState.isRunning} 
+              pomodoroMode={pomodoroState.mode} 
+            />
             <Calculator />
           </div>
           

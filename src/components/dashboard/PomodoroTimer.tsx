@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 
-type TimerMode = 'focus' | 'shortBreak' | 'longBreak';
+export type TimerMode = 'focus' | 'shortBreak' | 'longBreak';
 
 const TIMER_SETTINGS = {
   focus: { duration: 25 * 60, label: 'Focus Time', icon: BookOpen },
@@ -13,7 +13,11 @@ const TIMER_SETTINGS = {
   longBreak: { duration: 15 * 60, label: 'Long Break', icon: Coffee },
 };
 
-export const PomodoroTimer = () => {
+interface PomodoroTimerProps {
+  onStateChange?: (isRunning: boolean, mode: TimerMode) => void;
+}
+
+export const PomodoroTimer = ({ onStateChange }: PomodoroTimerProps) => {
   const [mode, setMode] = useState<TimerMode>('focus');
   const [timeLeft, setTimeLeft] = useState(TIMER_SETTINGS.focus.duration);
   const [isRunning, setIsRunning] = useState(false);
@@ -22,6 +26,11 @@ export const PomodoroTimer = () => {
 
   const totalTime = TIMER_SETTINGS[mode].duration;
   const progress = ((totalTime - timeLeft) / totalTime) * 100;
+
+  // Notify parent of state changes
+  useEffect(() => {
+    onStateChange?.(isRunning, mode);
+  }, [isRunning, mode, onStateChange]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
