@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   Music, 
   Volume2, 
@@ -6,175 +6,73 @@ import {
   Play, 
   Pause, 
   SkipForward,
-  Waves,
-  Wind,
-  TreePine,
-  CloudRain,
-  Flame,
-  Coffee,
-  Bird,
-  Loader2
+  Radio,
+  RefreshCw,
+  Loader2,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
-interface SoundTrack {
-  id: string;
+interface RadioStation {
+  stationuuid: string;
   name: string;
-  icon: React.ReactNode;
   url: string;
-  category: 'lofi' | 'nature' | 'ambient' | 'focus' | 'jazz';
+  url_resolved: string;
+  favicon: string;
+  tags: string;
+  country: string;
+  codec: string;
+  bitrate: number;
 }
 
-// Reliable free audio sources - using direct MP3 files that work cross-origin
-const SOUND_TRACKS: SoundTrack[] = [
-  // === LO-FI & CHILL BEATS ===
-  {
-    id: 'lofi-chill',
-    name: 'Lofi Chill Vibes',
-    icon: <Music className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    category: 'lofi'
+interface Category {
+  id: string;
+  label: string;
+  color: string;
+  searchTags: string[];
+}
+
+const CATEGORIES: Category[] = [
+  { 
+    id: 'lofi', 
+    label: 'Lo-Fi', 
+    color: 'from-purple-500 to-pink-500',
+    searchTags: ['lofi', 'lo-fi', 'chillhop', 'chill beats', 'study']
   },
-  {
-    id: 'lofi-beats',
-    name: 'Study Beats',
-    icon: <Music className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-    category: 'lofi'
+  { 
+    id: 'jazz', 
+    label: 'Jazz', 
+    color: 'from-amber-500 to-orange-500',
+    searchTags: ['jazz', 'smooth jazz', 'jazz cafe', 'bossa nova']
   },
-  {
-    id: 'lofi-dream',
-    name: 'Dreamy Lofi',
-    icon: <Coffee className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
-    category: 'lofi'
+  { 
+    id: 'classical', 
+    label: 'Classical', 
+    color: 'from-blue-500 to-cyan-500',
+    searchTags: ['classical', 'piano', 'orchestra', 'symphony']
   },
-  {
-    id: 'lofi-night',
-    name: 'Night Study',
-    icon: <Music className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
-    category: 'lofi'
+  { 
+    id: 'ambient', 
+    label: 'Ambient', 
+    color: 'from-green-500 to-emerald-500',
+    searchTags: ['ambient', 'relaxation', 'meditation', 'sleep', 'nature sounds']
   },
-  
-  // === JAZZ & COFFEEHOUSE ===
-  {
-    id: 'jazz-smooth',
-    name: 'Smooth Jazz',
-    icon: <Coffee className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
-    category: 'jazz'
-  },
-  {
-    id: 'jazz-cafe',
-    name: 'Jazz Café',
-    icon: <Coffee className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
-    category: 'jazz'
-  },
-  {
-    id: 'jazz-mellow',
-    name: 'Mellow Jazz',
-    icon: <Coffee className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
-    category: 'jazz'
-  },
-  
-  // === FOCUS & CONCENTRATION ===
-  {
-    id: 'focus-deep',
-    name: 'Deep Focus',
-    icon: <Music className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-    category: 'focus'
-  },
-  {
-    id: 'focus-ambient',
-    name: 'Ambient Focus',
-    icon: <Music className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3',
-    category: 'focus'
-  },
-  {
-    id: 'focus-zen',
-    name: 'Zen Concentration',
-    icon: <Music className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3',
-    category: 'focus'
-  },
-  
-  // === NATURE SOUNDS (using reliable freesound samples) ===
-  {
-    id: 'rain',
-    name: 'Rain Sounds',
-    icon: <CloudRain className="w-4 h-4" />,
-    url: 'https://upload.wikimedia.org/wikipedia/commons/4/48/Rain_moderate.ogg',
-    category: 'nature'
-  },
-  {
-    id: 'ocean',
-    name: 'Ocean Waves',
-    icon: <Waves className="w-4 h-4" />,
-    url: 'https://upload.wikimedia.org/wikipedia/commons/9/92/Ocean_Waves.ogg',
-    category: 'nature'
-  },
-  {
-    id: 'forest',
-    name: 'Forest Birds',
-    icon: <Bird className="w-4 h-4" />,
-    url: 'https://upload.wikimedia.org/wikipedia/commons/4/40/Bird_singing.ogg',
-    category: 'nature'
-  },
-  {
-    id: 'wind',
-    name: 'Wind Ambience',
-    icon: <Wind className="w-4 h-4" />,
-    url: 'https://upload.wikimedia.org/wikipedia/commons/7/77/Wind_sound.ogg',
-    category: 'nature'
-  },
-  
-  // === AMBIENT & WHITE NOISE ===
-  {
-    id: 'ambient-space',
-    name: 'Space Ambient',
-    icon: <Waves className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3',
-    category: 'ambient'
-  },
-  {
-    id: 'ambient-drone',
-    name: 'Ambient Drone',
-    icon: <TreePine className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3',
-    category: 'ambient'
-  },
-  {
-    id: 'fireplace',
-    name: 'Cozy Fireplace',
-    icon: <Flame className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3',
-    category: 'ambient'
-  },
-  {
-    id: 'cafe',
-    name: 'Café Ambience',
-    icon: <Coffee className="w-4 h-4" />,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3',
-    category: 'ambient'
+  { 
+    id: 'electronic', 
+    label: 'Electronic', 
+    color: 'from-indigo-500 to-violet-500',
+    searchTags: ['electronic', 'chillout', 'downtempo', 'synthwave']
   }
 ];
 
-const CATEGORIES = [
-  { id: 'lofi', label: 'Lo-Fi', color: 'from-purple-500 to-pink-500' },
-  { id: 'jazz', label: 'Jazz', color: 'from-amber-500 to-orange-500' },
-  { id: 'focus', label: 'Focus', color: 'from-blue-500 to-cyan-500' },
-  { id: 'nature', label: 'Nature', color: 'from-green-500 to-emerald-500' },
-  { id: 'ambient', label: 'Ambient', color: 'from-slate-500 to-gray-600' }
-];
+// Radio Browser API - completely free, no API key needed
+const RADIO_BROWSER_API = 'https://de1.api.radio-browser.info/json';
 
 interface FocusMusicPlayerProps {
   isPomodoroRunning?: boolean;
@@ -184,21 +82,95 @@ interface FocusMusicPlayerProps {
 export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusicPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingStations, setIsFetchingStations] = useState(false);
   const [volume, setVolume] = useState(50);
   const [isMuted, setIsMuted] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState<SoundTrack>(SOUND_TRACKS[0]);
+  const [stations, setStations] = useState<RadioStation[]>([]);
+  const [currentStation, setCurrentStation] = useState<RadioStation | null>(null);
   const [autoSync, setAutoSync] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('lofi');
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  
-  const filteredTracks = SOUND_TRACKS.filter(t => t.category === selectedCategory);
 
-  // Initialize audio element with better error handling
+  // Monitor online status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Fetch stations from Radio Browser API
+  const fetchStations = useCallback(async (categoryId: string) => {
+    const category = CATEGORIES.find(c => c.id === categoryId);
+    if (!category) return;
+
+    setIsFetchingStations(true);
+    setError(null);
+
+    try {
+      // Try multiple search tags to get more variety
+      const allStations: RadioStation[] = [];
+      
+      for (const tag of category.searchTags.slice(0, 2)) {
+        const response = await fetch(
+          `${RADIO_BROWSER_API}/stations/bytag/${encodeURIComponent(tag)}?limit=10&order=clickcount&reverse=true&hidebroken=true`,
+          {
+            headers: {
+              'User-Agent': 'StudyDashboard/1.0'
+            }
+          }
+        );
+        
+        if (response.ok) {
+          const data: RadioStation[] = await response.json();
+          allStations.push(...data);
+        }
+      }
+
+      // Remove duplicates and filter valid stations
+      const uniqueStations = allStations
+        .filter((station, index, self) => 
+          index === self.findIndex(s => s.stationuuid === station.stationuuid) &&
+          station.url_resolved &&
+          station.name
+        )
+        .slice(0, 15);
+
+      if (uniqueStations.length > 0) {
+        setStations(uniqueStations);
+        if (!currentStation || !uniqueStations.find(s => s.stationuuid === currentStation.stationuuid)) {
+          setCurrentStation(uniqueStations[0]);
+        }
+      } else {
+        setError('No stations found - try another category');
+      }
+    } catch (err) {
+      console.error('Failed to fetch stations:', err);
+      setError('Failed to load stations');
+    } finally {
+      setIsFetchingStations(false);
+    }
+  }, [currentStation]);
+
+  // Fetch stations when category changes
+  useEffect(() => {
+    if (isOnline) {
+      fetchStations(selectedCategory);
+    }
+  }, [selectedCategory, isOnline, fetchStations]);
+
+  // Initialize audio element
   useEffect(() => {
     const audio = new Audio();
-    audio.loop = true;
-    audio.preload = 'auto';
+    audio.preload = 'none';
     audioRef.current = audio;
 
     const handleCanPlay = () => {
@@ -209,7 +181,7 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
     const handleError = () => {
       setIsLoading(false);
       setIsPlaying(false);
-      setError('Audio unavailable - try another track');
+      setError('Station unavailable - try another');
     };
 
     const handleWaiting = () => {
@@ -222,26 +194,16 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
       setIsPlaying(true);
     };
 
-    const handleEnded = () => {
-      // For non-looping tracks, restart
-      if (audio.loop) {
-        audio.currentTime = 0;
-        audio.play().catch(() => {});
-      }
-    };
-
     audio.addEventListener('canplaythrough', handleCanPlay);
     audio.addEventListener('error', handleError);
     audio.addEventListener('waiting', handleWaiting);
     audio.addEventListener('playing', handlePlaying);
-    audio.addEventListener('ended', handleEnded);
 
     return () => {
       audio.removeEventListener('canplaythrough', handleCanPlay);
       audio.removeEventListener('error', handleError);
       audio.removeEventListener('waiting', handleWaiting);
       audio.removeEventListener('playing', handlePlaying);
-      audio.removeEventListener('ended', handleEnded);
       audio.pause();
       audio.src = '';
     };
@@ -249,14 +211,14 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
 
   // Auto-play/pause based on Pomodoro timer state
   useEffect(() => {
-    if (autoSync && isPomodoroRunning !== undefined) {
+    if (autoSync && isPomodoroRunning !== undefined && currentStation) {
       if (isPomodoroRunning && pomodoroMode === 'focus') {
         handlePlay();
       } else if (!isPomodoroRunning || pomodoroMode !== 'focus') {
         handlePause();
       }
     }
-  }, [isPomodoroRunning, pomodoroMode, autoSync]);
+  }, [isPomodoroRunning, pomodoroMode, autoSync, currentStation]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -265,23 +227,25 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
   }, [volume, isMuted]);
 
   const handlePlay = async () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !currentStation) return;
     
     setError(null);
     setIsLoading(true);
 
     try {
-      // Set source if not set or different
-      if (!audioRef.current.src || !audioRef.current.src.includes(currentTrack.url.split('/').pop() || '')) {
-        audioRef.current.src = currentTrack.url;
+      const streamUrl = currentStation.url_resolved || currentStation.url;
+      
+      if (audioRef.current.src !== streamUrl) {
+        audioRef.current.src = streamUrl;
         audioRef.current.load();
       }
       
-      // Small delay to ensure audio is ready
-      await new Promise(resolve => setTimeout(resolve, 100));
       await audioRef.current.play();
       setIsPlaying(true);
       setIsLoading(false);
+      
+      // Report click to Radio Browser API (helps rank popular stations)
+      fetch(`${RADIO_BROWSER_API}/url/${currentStation.stationuuid}`, { method: 'GET' }).catch(() => {});
     } catch (err) {
       console.log('Play error:', err);
       setIsLoading(false);
@@ -311,23 +275,22 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
     setIsMuted(!isMuted);
   };
 
-  const selectTrack = (track: SoundTrack) => {
+  const selectStation = (station: RadioStation) => {
     const wasPlaying = isPlaying;
     
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.currentTime = 0;
     }
     
     setIsPlaying(false);
-    setCurrentTrack(track);
+    setCurrentStation(station);
     setError(null);
     
     if (wasPlaying) {
-      // Use setTimeout to allow state update first
       setTimeout(() => {
         if (audioRef.current) {
-          audioRef.current.src = track.url;
+          const streamUrl = station.url_resolved || station.url;
+          audioRef.current.src = streamUrl;
           audioRef.current.load();
           audioRef.current.play().then(() => {
             setIsPlaying(true);
@@ -339,22 +302,14 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
     }
   };
 
-  const nextTrack = () => {
-    const categoryTracks = SOUND_TRACKS.filter(t => t.category === selectedCategory);
-    const currentIndex = categoryTracks.findIndex(t => t.id === currentTrack.id);
-    const nextIndex = (currentIndex + 1) % categoryTracks.length;
-    selectTrack(categoryTracks[nextIndex >= 0 ? nextIndex : 0]);
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'lofi': return 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30';
-      case 'jazz': return 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30';
-      case 'focus': return 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30';
-      case 'nature': return 'bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30';
-      case 'ambient': return 'bg-slate-500/20 text-slate-600 dark:text-slate-400 border-slate-500/30';
-      default: return 'bg-muted text-muted-foreground';
-    }
+  const nextStation = () => {
+    if (stations.length === 0) return;
+    
+    const currentIndex = currentStation 
+      ? stations.findIndex(s => s.stationuuid === currentStation.stationuuid)
+      : -1;
+    const nextIndex = (currentIndex + 1) % stations.length;
+    selectStation(stations[nextIndex]);
   };
 
   const getCategoryGradient = (categoryId: string) => {
@@ -362,47 +317,74 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
     return cat ? `bg-gradient-to-r ${cat.color}` : '';
   };
 
+  const currentCategory = CATEGORIES.find(c => c.id === selectedCategory);
+
   return (
     <Card className="border shadow-sm hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
         <CardTitle className="text-base font-semibold flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <Music className="w-4 h-4 text-white" />
-            </div>
-            <span>Focus Music</span>
-          </div>
-          {autoSync && isPomodoroRunning !== undefined && (
-            <Badge variant="outline" className={cn(
-              "text-xs",
-              isPomodoroRunning && pomodoroMode === 'focus' 
-                ? "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30" 
-                : "bg-muted"
+            <div className={cn(
+              "w-8 h-8 rounded-lg flex items-center justify-center",
+              currentCategory ? `bg-gradient-to-br ${currentCategory.color}` : "bg-gradient-to-br from-purple-500 to-pink-500"
             )}>
-              {isPomodoroRunning && pomodoroMode === 'focus' ? '🎵 Synced' : '⏸ Ready'}
-            </Badge>
-          )}
+              <Radio className="w-4 h-4 text-white" />
+            </div>
+            <span>Focus Radio</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {!isOnline && (
+              <Badge variant="outline" className="text-xs bg-red-500/10 text-red-600 border-red-500/30">
+                <WifiOff className="w-3 h-3 mr-1" />
+                Offline
+              </Badge>
+            )}
+            {autoSync && isPomodoroRunning !== undefined && isOnline && (
+              <Badge variant="outline" className={cn(
+                "text-xs",
+                isPomodoroRunning && pomodoroMode === 'focus' 
+                  ? "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30" 
+                  : "bg-muted"
+              )}>
+                {isPomodoroRunning && pomodoroMode === 'focus' ? '🎵 Synced' : '⏸ Ready'}
+              </Badge>
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Current Track Display */}
+        {/* Current Station Display */}
         <div className={cn(
           "flex items-center gap-3 p-3 rounded-lg border transition-colors",
           isPlaying ? "bg-primary/5 border-primary/20" : "bg-muted/30"
         )}>
           <div className={cn(
-            "w-10 h-10 rounded-lg flex items-center justify-center transition-all",
-            isPlaying ? "bg-gradient-to-br from-purple-500 to-pink-500" : "bg-muted"
+            "w-10 h-10 rounded-lg flex items-center justify-center transition-all overflow-hidden",
+            isPlaying ? `bg-gradient-to-br ${currentCategory?.color || 'from-purple-500 to-pink-500'}` : "bg-muted"
           )}>
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin text-white" />
+            ) : currentStation?.favicon ? (
+              <img 
+                src={currentStation.favicon} 
+                alt="" 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
             ) : (
-              <span className={isPlaying ? "text-white" : ""}>{currentTrack.icon}</span>
+              <Music className={cn("w-4 h-4", isPlaying && "text-white")} />
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-sm truncate">{currentTrack.name}</p>
-            <p className="text-xs text-muted-foreground capitalize">{currentTrack.category}</p>
+            <p className="font-medium text-sm truncate">
+              {currentStation?.name || 'Select a station'}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+              {currentStation?.country || 'Live radio stream'}
+              {currentStation?.bitrate ? ` • ${currentStation.bitrate}kbps` : ''}
+            </p>
             {error && <p className="text-xs text-orange-500">{error}</p>}
           </div>
           {isPlaying && !isLoading && (
@@ -436,12 +418,12 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
           <Button
             onClick={togglePlay}
             size="lg"
-            disabled={isLoading}
+            disabled={isLoading || !currentStation || !isOnline}
             className={cn(
               "w-12 h-12 rounded-full transition-all",
               isPlaying 
                 ? "bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700" 
-                : "bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                : `bg-gradient-to-br ${currentCategory?.color || 'from-purple-500 to-pink-500'}`
             )}
           >
             {isLoading ? (
@@ -456,7 +438,8 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
           <Button
             variant="outline"
             size="icon"
-            onClick={nextTrack}
+            onClick={nextStation}
+            disabled={stations.length === 0}
             className="h-9 w-9"
           >
             <SkipForward className="w-4 h-4" />
@@ -478,9 +461,21 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
 
         {/* Category Tabs */}
         <div className="space-y-3">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Categories
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Genre
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => fetchStations(selectedCategory)}
+              disabled={isFetchingStations || !isOnline}
+              className="h-6 px-2 text-xs"
+            >
+              <RefreshCw className={cn("w-3 h-3 mr-1", isFetchingStations && "animate-spin")} />
+              Refresh
+            </Button>
+          </div>
           <div className="flex flex-wrap gap-1.5">
             {CATEGORIES.map((cat) => (
               <Button
@@ -499,61 +494,75 @@ export const FocusMusicPlayer = ({ isPomodoroRunning, pomodoroMode }: FocusMusic
           </div>
         </div>
 
-        {/* Track Selection */}
+        {/* Station List */}
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            {CATEGORIES.find(c => c.id === selectedCategory)?.label} Tracks ({filteredTracks.length})
+            Stations {stations.length > 0 && `(${stations.length})`}
           </p>
-          <div className="grid grid-cols-1 gap-1.5 max-h-40 overflow-y-auto pr-1">
-            {filteredTracks.map((track) => (
-              <Button
-                key={track.id}
-                variant="outline"
-                size="sm"
-                onClick={() => selectTrack(track)}
-                className={cn(
-                  "h-auto py-2 px-3 justify-start gap-2 text-xs",
-                  currentTrack.id === track.id && getCategoryColor(track.category)
-                )}
-              >
-                {track.icon}
-                <span className="truncate">{track.name}</span>
-                {currentTrack.id === track.id && isPlaying && (
-                  <div className="ml-auto flex gap-0.5 items-end h-3">
-                    {[...Array(3)].map((_, i) => (
-                      <div 
-                        key={i}
-                        className="w-0.5 bg-current rounded-full animate-pulse"
-                        style={{ 
-                          height: `${4 + (i % 3) * 3}px`,
-                          animationDelay: `${i * 0.15}s`
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
-              </Button>
-            ))}
-          </div>
+          
+          {isFetchingStations ? (
+            <div className="flex items-center justify-center py-6">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-sm text-muted-foreground">Loading stations...</span>
+            </div>
+          ) : stations.length > 0 ? (
+            <ScrollArea className="h-40">
+              <div className="space-y-1.5 pr-3">
+                {stations.map((station) => (
+                  <Button
+                    key={station.stationuuid}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => selectStation(station)}
+                    className={cn(
+                      "w-full h-auto py-2 px-3 justify-start gap-2 text-left",
+                      currentStation?.stationuuid === station.stationuuid && 
+                        `bg-gradient-to-r ${currentCategory?.color} text-white border-0`
+                    )}
+                  >
+                    <div className="w-6 h-6 rounded bg-muted/50 flex items-center justify-center shrink-0 overflow-hidden">
+                      {station.favicon ? (
+                        <img 
+                          src={station.favicon} 
+                          alt="" 
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <Radio className="w-3 h-3" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium truncate">{station.name}</p>
+                      <p className={cn(
+                        "text-[10px] truncate",
+                        currentStation?.stationuuid === station.stationuuid 
+                          ? "text-white/70" 
+                          : "text-muted-foreground"
+                      )}>
+                        {station.country} {station.bitrate ? `• ${station.bitrate}kbps` : ''}
+                      </p>
+                    </div>
+                    {currentStation?.stationuuid === station.stationuuid && isPlaying && (
+                      <Wifi className="w-3 h-3 animate-pulse" />
+                    )}
+                  </Button>
+                ))}
+              </div>
+            </ScrollArea>
+          ) : (
+            <div className="text-center py-6 text-sm text-muted-foreground">
+              {error || (isOnline ? 'No stations available' : 'Connect to internet to load stations')}
+            </div>
+          )}
         </div>
 
-        {/* Auto-sync Toggle */}
-        <div className="flex items-center justify-between pt-2 border-t">
-          <span className="text-xs text-muted-foreground">
-            Sync with Pomodoro
-          </span>
-          <Button
-            variant={autoSync ? "default" : "outline"}
-            size="sm"
-            onClick={() => setAutoSync(!autoSync)}
-            className={cn(
-              "text-xs h-7",
-              autoSync && "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-            )}
-          >
-            {autoSync ? 'On' : 'Off'}
-          </Button>
-        </div>
+        {/* API Attribution */}
+        <p className="text-[10px] text-center text-muted-foreground/60">
+          Powered by Radio Browser API • Free & Open Source
+        </p>
       </CardContent>
     </Card>
   );
